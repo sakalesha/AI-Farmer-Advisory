@@ -1,0 +1,32 @@
+# Node & Apps
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment Variables
+.env
+.env.production
+.env.development
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.env/
+
+# ML Models (if they are large, though these are small, it's good practice)
+ml_service/models/*.pkl
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

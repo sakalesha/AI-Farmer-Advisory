@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Farmer Advisory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen font-sans text-gray-800">
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-emerald-800 mb-2">🌱 AI Farmer Advisory</h1>
+            <p class="text-lg text-emerald-600">Smart Crop Recommendation & Irrigation Advice</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Form Section -->
+            <div class="glass p-8 rounded-3xl shadow-xl">
+                <h2 class="text-2xl font-bold text-emerald-700 mb-6">Enter Soil Data</h2>
+                <form id="predictionForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Nitrogen (N)</label>
+                            <input type="number" step="any" name="N" required placeholder="e.g. 90" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Phosphorus (P)</label>
+                            <input type="number" step="any" name="P" required placeholder="e.g. 42" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">Potassium (K)</label>
+                            <input type="number" step="any" name="K" required placeholder="e.g. 43" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 mb-1">pH Level</label>
+                            <input type="number" step="any" name="ph" required placeholder="e.g. 6.5" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <hr class="border-emerald-100">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Temperature (°C)</label>
+                        <input type="number" step="any" name="temperature" required placeholder="e.g. 20.8" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Humidity (%)</label>
+                        <input type="number" step="any" name="humidity" required placeholder="e.g. 82.0" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Rainfall (mm)</label>
+                        <input type="number" step="any" name="rainfall" required placeholder="e.g. 202.9" class="w-full px-4 py-2 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-300 transform hover:scale-[1.02] shadow-lg mt-4">
+                        🌾 Get Recommendation
+                    </button>
+                </form>
+            </div>
+
+            <!-- Result Section -->
+            <div id="resultContainer" class="hidden flex flex-col justify-center">
+                <div class="glass p-8 rounded-3xl shadow-xl text-center border-2 border-emerald-400">
+                    <h2 class="text-2xl font-bold text-emerald-800 mb-4">Output</h2>
+                    
+                    <div class="mb-8">
+                        <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mb-1">Recommended Crop</p>
+                        <div id="cropOutput" class="text-4xl font-extrabold text-emerald-600 capitalize">---</div>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mb-2">Irrigation Water Need</p>
+                        <div id="irrigationBadge" class="inline-block px-6 py-2 rounded-full font-bold text-lg">
+                            ---
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder Section -->
+            <div id="placeholder" class="flex flex-col justify-center items-center opacity-60 text-center glass rounded-3xl p-8">
+                <div class="text-6xl mb-4">🌾</div>
+                <h3 class="text-xl font-bold text-emerald-800">Awaiting Input</h3>
+                <p class="text-emerald-700">Enter the soil and weather parameters to see the AI analysis.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-emerald-700 text-sm">
+            <p>© 2026 AI Farmer Advisory System — Smart Agriculture MVP</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => data[key] = parseFloat(value));
+
+            try {
+                // Show loading state
+                const btn = e.target.querySelector('button');
+                const originalText = btn.innerText;
+                btn.innerText = 'Calculating... 🧪';
+                btn.disabled = true;
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    document.getElementById('placeholder').classList.add('hidden');
+                    document.getElementById('resultContainer').classList.remove('hidden');
+                    
+                    document.getElementById('cropOutput').innerText = '🌾 ' + result.crop;
+                    
+                    const badge = document.getElementById('irrigationBadge');
+                    badge.innerText = result.irrigation;
+                    
+                    // Colors for irrigation
+                    badge.classList.remove('bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700', 'bg-green-100', 'text-green-700');
+                    if (result.irrigation === 'High') {
+                        badge.classList.add('bg-red-100', 'text-red-700');
+                    } else if (result.irrigation === 'Medium') {
+                        badge.classList.add('bg-yellow-100', 'text-yellow-700');
+                    } else {
+                        badge.classList.add('bg-green-100', 'text-green-700');
+                    }
+                } else {
+                    alert('Error: ' + result.message);
+                }
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Connection failed. Is the Flask server running?');
+            }
+        });
+    </script>
+</body>
+</html>

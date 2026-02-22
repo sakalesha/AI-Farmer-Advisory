@@ -1,0 +1,180 @@
+# 🌱 AI Farmer Advisory — Progress Summary
+
+> This file tracks what was done at each step of the project.
+
+---
+
+## ✅ Step 1 — Dataset Downloaded
+**Date:** 2026-02-20
+**Phase:** Week 1 · Phase 1.1 · Dataset Preparation
+
+### What We Did:
+- Downloaded the **Kaggle Crop Recommendation Dataset** (`Crop_recommendation.csv`)
+- Placed it in the project folder: `AI Farmer Advisory/Crop_recommendation.csv`
+
+### Dataset Info:
+- **Rows:** 2,200 (100 samples × 22 crop types)
+- **Columns:** N, P, K, temperature, humidity, ph, rainfall, label
+- **Target Column:** `label` (crop name — 22 unique classes)
+- **Status:** No missing values, clean and ready for EDA
+
+### Next Step:
+→ Phase 1.1 continued: Open Jupyter Notebook and perform EDA (Exploratory Data Analysis)
+
+---
+
+## ✅ Step 2 — Jupyter Notebook Created
+**Date:** 2026-02-20
+**Phase:** Week 1 · All Phases (1.1 → 1.4)
+
+### What We Did:
+- Created `notebooks/model_training.ipynb` with full Week 1 pipeline
+- Notebook covers:
+  - **Phase 1.1** — Load CSV, check nulls, class distribution, correlation heatmap, boxplots
+  - **Phase 1.2** — StandardScaler, LabelEncoder, 80/20 stratified train-test split
+  - **Phase 1.3** — Train Random Forest & Decision Tree, accuracy, classification report, confusion matrix
+  - **Phase 1.4** — Rule-based irrigation logic (`rainfall < 60 → High`, etc.)
+  - **Save** — `crop_model.pkl`, `label_encoder.pkl`, `scaler.pkl` saved to `models/`
+
+### Next Step:
+→ Open `notebooks/model_training.ipynb` in Jupyter and run all cells top to bottom
+
+---
+
+## ✅ Step 3 — Week 1 Complete: Model Trained & Evaluated
+**Date:** 2026-02-21
+**Phase:** Week 1 · All Phases
+
+### What We Did:
+- Executed `notebooks/model_training.ipynb` successfully.
+- **Trained Models:** Random Forest (Best) and Decision Tree.
+- **Evaluation:** Generated Confusion Matrix and documented high accuracy in `models/model_report.txt`.
+- **Artifacts Saved:** 
+  - `models/crop_model.pkl` (Predictive model)
+  - `models/scaler.pkl` (Feature scaler)
+  - `models/label_encoder.pkl` (Category translator)
+- **Learnings:** Documented 7 key ML concepts (Box Plots, Scaling, Random Forest, etc.) in the `Learnings` file.
+
+### Next Step:
+→ Week 2: Build Flask/FastAPI Backend (`app.py`) to serve model predictions.
+
+---
+
+## ✅ Step 4 — Backend & Frontend Scaffolding
+**Date:** 2026-02-21
+**Phase:** Week 2 (Backend) & Week 3 (Frontend Started)
+
+### What We Did:
+- **Environment Setup:** Created `requirements.txt` and verified project folder structure.
+- **Backend Bridge:** Developed `app.py` using Flask.
+  - Efficiently loads the saved `.pkl` models at startup.
+  - Implemented `/predict` POST endpoint for real-time inference.
+- **Frontend UI:** Created `templates/index.html` using **Tailwind CSS**.
+  - Built a responsive "Glassmorphism" styled form.
+  - Integrated `fetch` API to handle predictions without page refresh.
+  - Added dynamic irrigation badges (High/Medium/Low colors).
+
+### Next Step:
+→ Run the application locally or in a virtual environment (`python app.py`) and test with sample inputs!
+
+---
+
+## 🔄 Step 5 — Pivoting to MERN Stack
+**Date:** 2026-02-21
+**Phase:** Architecture Refactoring
+
+### What Changed:
+- **Requirement:** User specified the use of **MERN Stack** (MongoDB, Express, React, Node).
+- **Architecture Update:** 
+  - The Python/Flask app will now act as a **Prediction Microservice**.
+  - A new **Node.js/Express server** will handle API requests and MongoDB storage.
+  - A new **React frontend** will replace the static HTML file.
+- **Documentation Updated:** `AI_Farmer_Advisory_MVP.md` and `ROADMAP_CHECKLIST.md` now reflect MERN phases.
+
+### Next Step:
+→ Draft the MERN Implementation Plan and initialize the React/Node projects.
+
+---
+
+## ✅ Step 6 — MERN Stack Integration Complete
+**Date:** 2026-02-21
+**Phase:** Week 2 & 3 Combined (MERN Architecture)
+
+### What We Did:
+- **Restructuring:** Successfully reorganized the project into `client/`, `server/`, and `ml_service/`.
+- **Node.js/Express Backend:**
+  - Initialized the server with `cors`, `dotenv`, `mongoose`, and `axios`.
+  - Created a **MongoDB** schema to store recommendation history.
+  - Implemented the bridge logic: Node.js now calls the Python Flask microservice (port 5001) for ML predictions.
+- **Vite/React Frontend:**
+  - Scaffolded a new React application with **Tailwind CSS**.
+  - Built a comprehensive `App.jsx` featuring:
+    - Interactive Soil/Weather input form.
+    - Real-time prediction display.
+    - Automated **History Log** that updates every time a new recommendation is made.
+- **ML Service:** Updated the Flask `app.py` to operate purely as an internal JSON microservice.
+
+### Next Step:
+→ **Live Verification:** Run all three services (`ml_service`, `server`, `client`) and perform a test prediction to verify the full end-to-end data flow.
+
+---
+
+---
+
+## ✅ Step 7 — End-to-End MERN Verification Complete
+**Date:** 2026-02-22
+**Phase:** Week 3 · Final Integration
+
+### What We Did:
+- **Service Optimization:** Fixed startup scripts in `server/package.json` and corrected model paths in `ml_service/app.py`.
+- **Live Testing:** Verified the full data pipeline using a dedicated Node.js verification script:
+  - **Node.js (5000)** successfully connected to **MongoDB**.
+  - **ML Service (5001)** successfully loaded models and returned predictions.
+  - **End-to-End:** Successfully submitted a sample soil analysis, received a "Rice" recommendation, and verified the record was saved to the database.
+- **Diagnostics:** Created `verify_integration.js` as a permanent diagnostic tool for the project.
+
+## ✅ Step 8 — Premium UI & Environmental Gauges
+**Date:** 2026-02-22
+**Phase:** Week 3 · UI/UX Refinement
+
+### What We Did:
+- **Premium Design Overhaul:** Transformed the basic React interface into a high-end dashboard using **Tailwind CSS v4** and **Framer Motion**.
+- **Visual Vitality Gauges:** Implemented real-time, animated progress bars for all 7 parameters:
+  - **Nutrient Levels:** N (Nitrogen), P (Phosphorus), K (Potassium).
+  - **Environmental Factors:** pH Level, Temperature, Humidity, and Rainfall.
+- **Advanced Glassmorphism:** Applied translucent card effects with pure CSS radial gradients and dotted patterns (no external images required for performance).
+- **Stability Fix:** Resolved a critical Tailwind v4 compiler crash by refactoring arbitrary shadow values into safe theme variables.
+
+## ✅ Step 9 — Secure User Authentication (JWT)
+**Date:** 2026-02-22
+**Phase:** Week 3 · Security & Personalization
+
+### What We Did:
+- **Backend Infrastructure:** Created a `User` model with password hashing (`bcryptjs`) and a `Recommendation` model with user associations.
+- **JWT Authorization:** Implemented login/register controllers and an `authMiddleware` to protect API endpoints.
+- **Frontend Integration:** 
+  - Developed a global `AuthContext` for session management.
+  - Built a premium **Login/Signup** interface with Glassmorphism and Framer Motion.
+  - Secured the Dashboard and Audit Log so that history is private to each user.
+- **End-to-End Verification:** Confirmed that registration, login, and secured data fetching work synchronously across the MERN stack.
+
+## ✅ Step 10 — Real-time Weather Integration
+**Date:** 2026-02-22
+**Phase:** Week 3 · Data Automation
+
+### What We Did:
+- **Backend Weather Proxy:** Implemented a secure `/api/weather` route that proxies requests to OpenWeatherMap, protecting API keys while providing simulated fallbacks.
+- **Geolocation Sync:** integrated the browser's Geolocation API on the frontend to fetch precise weather data based on the farmer's current location.
+- **Smart Form Auto-fill:** Added a "Sync Live Weather" button that instantly populates:
+  - **Temperature (°C)**
+  - **Humidity (%)**
+  - **Rainfall (mm)**
+- **UI Enhancements:** Added an animated sync status button and synchronized the vitality gauges to reflect the new data immediately.
+
+### Next Step:
+→ **Production Readiness:** Perform a final sweep and prepare for full cloud deployment!
+
+---
+
+
+
