@@ -16,7 +16,7 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = '/api';
 
 const NutrientBar = ({ label, value, max, colorClass }) => (
   <div className="space-y-1">
