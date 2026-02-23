@@ -207,8 +207,8 @@
 ### What We Did:
 - **Folder Restructuring:** Transitioned from a generic `api/` folder to a logical **Client-Server-ML** pattern.
   - `client/` — React Frontend.
-  - `server/` — Node.js Backend.
-  - `ml/` — Python Prediction Service and AI Models.
+  - `server/` — Node.js Backend with MongoDB models (`User.js`, `Recommendation.js`).
+  - `ml/` — Python Prediction Service and AI Models (`.pkl` files).
 - **Internal Path Sync:** Updated `Dockerfile`, `start.sh`, and `index.js` to reflect the new directory structure.
 - **Code Portability:** Refactored `ml/app.py` to resolve model paths relative to its new dedicated folder.
 - **GitHub Synchronization:** Committed and pushed the final optimized project structure to the remote repository.
