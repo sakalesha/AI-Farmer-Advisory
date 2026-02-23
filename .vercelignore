@@ -1,0 +1,15 @@
+# Exclude source directories from Vercel Serverless Function bundling
+client/
+server/
+ml_service/
+notebooks/
+# Exclude other common large/unnecessary files
+.git/
+node_modules/
+*.csv
+*.mp4
+*.webp
+*.png
+*.jpg
+*.jpeg
+!api/models/*.pkl
