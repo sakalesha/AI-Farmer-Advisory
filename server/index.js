@@ -9,33 +9,77 @@ const Recommendation = require('./models/Recommendation');
 const authController = require('./controllers/authController');
 const { protect } = require('./middleware/authMiddleware');
 
+const path = require('path');
+
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-    origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, '../dist')));
 
-// Routes
+// MongoDB Connection (Cached for Serverless)
+let cachedDb = null;
+
+const connectToDatabase = async () => {
+    if (cachedDb) return cachedDb;
+    const db = await mongoose.connect(process.env.MONGODB_URI);
+    cachedDb = db;
+    return db;
+};
+
+// Basic health check (Resilient - no DB required)
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'MERN Server is running' });
+    res.json({
+        status: 'ok',
+        message: 'Render Unified Server is running',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Middleware to ensure DB connection
+app.use(async (req, res, next) => {
+    // Skip DB check for health/diag routes just in case
+    if (req.path === '/api/health' || req.path === '/api/diag') {
+        return next();
+    }
+    try {
+        await connectToDatabase();
+        next();
+    } catch (err) {
+        console.error('❌ Database connection failed:', err.message);
+        res.status(500).json({ error: 'Database connection failed', details: err.message });
+    }
+});
+
+// Routes (Moved health check above middleware)
+
+// Diagnostic route
+app.get('/api/diag', (req, res) => {
+    const fs = require('fs');
+    const distPath = path.join(__dirname, '../dist');
+    try {
+        const files = fs.readdirSync(distPath);
+        res.json({
+            status: 'ok',
+            distPath,
+            files
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message, distPath });
+    }
 });
 
 // Auth Routes
 app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 
-// GET /api/weather (Protected proxy to OpenWeatherMap)
+// GET /api/weather
 app.get('/api/weather', protect, async (req, res) => {
     try {
         const { lat, lon } = req.query;
@@ -45,25 +89,20 @@ app.get('/api/weather', protect, async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Latitude and longitude are required' });
         }
 
-        // SIMULATION MODE: If API key is missing or the placeholder
         if (!apiKey || apiKey === 'your_openweathermap_api_key_here') {
-            console.log('🌦️ Weather API: Simulation Mode Active');
             return res.json({
                 status: 'success',
                 mode: 'simulation',
                 data: {
-                    temp: 24 + Math.random() * 8, // 24-32°C
-                    humidity: 60 + Math.random() * 20, // 60-80%
-                    rainfall: 80 + Math.random() * 150 // 80-230mm
+                    temp: 24 + Math.random() * 8,
+                    humidity: 60 + Math.random() * 20,
+                    rainfall: 80 + Math.random() * 150
                 }
             });
         }
 
-        // REAL MODE
         const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
         const response = await axios.get(weatherUrl);
-
-        // Extract relevant data (Rainfall is often in 'rain' object, volume for last 1h)
         const rain = response.data.rain ? (response.data.rain['1h'] || 0) : 0;
 
         res.json({
@@ -72,33 +111,29 @@ app.get('/api/weather', protect, async (req, res) => {
             data: {
                 temp: response.data.main.temp,
                 humidity: response.data.main.humidity,
-                rainfall: rain * 100 // Scale to mm for our model's rainfall parameter if needed
+                rainfall: rain * 100
             }
         });
-
     } catch (error) {
-        console.error('❌ Error in /api/weather:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Failed to fetch weather data.',
-            details: error.response?.data?.message || error.message
-        });
+        res.status(500).json({ status: 'error', message: error.message });
     }
 });
 
-const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:5001';
-
-// Protected Recommendation Routes
+// Recommendation Route
 app.post('/api/recommend', protect, async (req, res) => {
     try {
-        const payload = req.body;
-        
-        // Call ML Microservice
-        const mlResponse = await axios.post(`${ML_URL}/predict`, payload);
+        const { N, P, K, temperature, humidity, ph, rainfall } = req.body;
+
+        // Internal call to Python service running on port 5001
+        const ML_SERVICE_PORT = process.env.ML_SERVICE_PORT || 5001;
+        const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict`;
+
+        const mlResponse = await axios.post(ML_URL, {
+            N, P, K, temperature, humidity, ph, rainfall
+        });
 
         const { crop, irrigation } = mlResponse.data;
 
-        // 2. Save to MongoDB (tied to user)
         const newRecord = new Recommendation({
             user: req.user._id,
             inputs: { N, P, K, temperature, humidity, ph, rainfall },
@@ -107,25 +142,19 @@ app.post('/api/recommend', protect, async (req, res) => {
 
         await newRecord.save();
 
-        // 3. Return response
         res.json({
             status: 'success',
             crop,
             irrigation,
             recordId: newRecord._id
         });
-
     } catch (error) {
         console.error('❌ Error in /api/recommend:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Failed to process recommendation.',
-            details: error.message
-        });
+        res.status(500).json({ status: 'error', message: error.message });
     }
 });
 
-// GET /api/history (tied to user)
+// History Route
 app.get('/api/history', protect, async (req, res) => {
     try {
         const history = await Recommendation.find({ user: req.user._id })
@@ -137,6 +166,17 @@ app.get('/api/history', protect, async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+// Fallback for SPA routing: serve index.html for all other routes
+app.get('/*any', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
+
+// Standalone server start
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Unified Node server running on port ${PORT}`);
+    console.log(`📂 Serving static files from: ${path.join(__dirname, '../dist')}`);
+    console.log(`🔗 Health check available at: /api/health`);
+});
+
+module.exports = app;

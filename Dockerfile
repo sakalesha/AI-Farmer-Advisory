@@ -31,8 +31,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy built frontend from Stage 1
 COPY --from=build /app/client/dist ./dist
 
-# Copy API and models
-COPY api/ ./api/
+# Copy Server and ML directories
+COPY server/ ./server/
+COPY ml/ ./ml/
 
 # Copy entrypoint script
 COPY start.sh ./
