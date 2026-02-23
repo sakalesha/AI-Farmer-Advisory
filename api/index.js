@@ -32,20 +32,32 @@ const connectToDatabase = async () => {
     return db;
 };
 
+// Basic health check (Resilient - no DB required)
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Render Unified Server is running',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Middleware to ensure DB connection
 app.use(async (req, res, next) => {
+    // Skip DB check for health/diag routes just in case
+    if (req.path === '/api/health' || req.path === '/api/diag') {
+        return next();
+    }
     try {
         await connectToDatabase();
         next();
     } catch (err) {
-        res.status(500).json({ error: 'Database connection failed' });
+        console.error('❌ Database connection failed:', err.message);
+        res.status(500).json({ error: 'Database connection failed', details: err.message });
     }
 });
 
-// Routes
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Render Unified Server is running' });
-});
+// Routes (Moved health check above middleware)
 
 // Diagnostic route
 app.get('/api/diag', (req, res) => {
@@ -163,6 +175,8 @@ app.get('/*any', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Unified Node server running on port ${PORT}`);
+    console.log(`📂 Serving static files from: ${path.join(__dirname, '../dist')}`);
+    console.log(`🔗 Health check available at: /api/health`);
 });
 
 module.exports = app;
