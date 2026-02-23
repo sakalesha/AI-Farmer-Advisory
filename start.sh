@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # Start Python ML service in the background
-echo "🌱 Starting Python ML service..."
+echo "🌱 Starting Python ML service on port ${ML_SERVICE_PORT:-5001}..."
 python3 api/predict.py &
 
+# Wait a few seconds for Python to bind
+sleep 3
+
 # Start Node.js API server in the foreground
-echo "🚀 Starting Node.js Unified Server..."
+echo "🚀 Starting Node.js Unified Server on port ${PORT:-5000}..."
 node api/index.js

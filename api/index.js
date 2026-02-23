@@ -139,7 +139,7 @@ app.get('/api/history', protect, async (req, res) => {
 });
 
 // Fallback for SPA routing: serve index.html for all other routes
-app.get('/:path*', (req, res) => {
+app.get('/*any', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
