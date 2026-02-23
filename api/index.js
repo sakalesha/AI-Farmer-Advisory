@@ -9,16 +9,18 @@ const Recommendation = require('./models/Recommendation');
 const authController = require('./controllers/authController');
 const { protect } = require('./middleware/authMiddleware');
 
+const path = require('path');
+
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors({
-    origin: '*', // Allow all origins in serverless for easier connectivity
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // MongoDB Connection (Cached for Serverless)
 let cachedDb = null;
@@ -42,7 +44,7 @@ app.use(async (req, res, next) => {
 
 // Routes
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Vercel Unified Server is running' });
+    res.json({ status: 'ok', message: 'Render Unified Server is running' });
 });
 
 // Auth Routes
@@ -94,11 +96,9 @@ app.post('/api/recommend', protect, async (req, res) => {
     try {
         const { N, P, K, temperature, humidity, ph, rainfall } = req.body;
 
-        // Internal call to Python function or External URL
-        // In Vercel, we call the relative path or host
-        const protocol = req.headers['x-forwarded-proto'] || 'http';
-        const host = req.headers.host;
-        const ML_URL = `${protocol}://${host}/api/predict`;
+        // Internal call to Python service running on port 5001
+        const ML_SERVICE_PORT = process.env.ML_SERVICE_PORT || 5001;
+        const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict`;
 
         const mlResponse = await axios.post(ML_URL, {
             N, P, K, temperature, humidity, ph, rainfall
@@ -136,6 +136,17 @@ app.get('/api/history', protect, async (req, res) => {
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });
     }
+});
+
+// Fallback for SPA routing: serve index.html for all other routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+// Standalone server start
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Unified Node server running on port ${PORT}`);
 });
 
 module.exports = app;

@@ -1,0 +1,15 @@
+# Exclude build artifacts and env files from Docker build context
+node_modules/
+dist/
+client/dist/
+.env
+.git/
+*.mp4
+*.webp
+*.png
+*.jpg
+*.jpeg
+notebooks/
+ml_service/
+
+# Keep api/ and other source for Docker to copy

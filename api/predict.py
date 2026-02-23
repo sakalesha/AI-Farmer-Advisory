@@ -52,6 +52,8 @@ def predict():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
-# For Vercel, the app instance is what matters
+# For Render, run as a standalone server
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get("ML_SERVICE_PORT", 5001))
+    print(f"🚀 Python ML service starting on port {port}...")
+    app.run(host='0.0.0.0', port=port)
