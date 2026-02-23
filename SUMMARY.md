@@ -172,7 +172,46 @@
 - **UI Enhancements:** Added an animated sync status button and synchronized the vitality gauges to reflect the new data immediately.
 
 ### Next Step:
-→ **Production Readiness:** Perform a final sweep and prepare for full cloud deployment!
+→ **Scaling & Monitoring:** Monitor the Render deployment and prepare for advanced features like "Farmer Community" or "Market Analysis"!
+
+---
+
+## ✅ Step 11 — Migration to Render & Dockerization
+**Date:** 2026-02-23
+**Phase:** Deployment & Infrastructure
+
+### What We Did:
+- **Platform Migration:** Moved the deployment from Vercel (limited by slug size) to **Render.com** using a unified environment.
+- **Containerization:** Created a multi-service `Dockerfile` that installs both Node.js and Python environments.
+- **Service Orchestration:** Developed `start.sh` to launch the Node backend and Python ML service simultaneously within a single container.
+- **Unified Logic:** Merged ML and Backend logic into a high-performance unified structure for reliable production uptime.
+
+---
+
+## ✅ Step 12 — Post-Deployment Cleanup & Optimization
+**Date:** 2026-02-23
+**Phase:** Maintenance & Cleanup
+
+### What We Did:
+- **Legacy Removal:** Deleted obsolete directories (`ml_service/`, old `server/`) and development scripts (`verify_integration.js`).
+- **Platform Cleanup:** Removed Vercel-specific files (`vercel.json`, `.vercelignore`) that were no longer relevant.
+- **Configuration Hub:** Moved the `.env` file to the root directory for centralized management.
+- **Data Organization:** Relocated `Crop_recommendation.csv` to the `notebooks/` directory to keep the workspace professional and clean.
+
+---
+
+## ✅ Step 13 — Professional Architecture (Client-Server-ML)
+**Date:** 2026-02-23
+**Phase:** Architectural Refinement
+
+### What We Did:
+- **Folder Restructuring:** Transitioned from a generic `api/` folder to a logical **Client-Server-ML** pattern.
+  - `client/` — React Frontend.
+  - `server/` — Node.js Backend.
+  - `ml/` — Python Prediction Service and AI Models.
+- **Internal Path Sync:** Updated `Dockerfile`, `start.sh`, and `index.js` to reflect the new directory structure.
+- **Code Portability:** Refactored `ml/app.py` to resolve model paths relative to its new dedicated folder.
+- **GitHub Synchronization:** Committed and pushed the final optimized project structure to the remote repository.
 
 ---
 
