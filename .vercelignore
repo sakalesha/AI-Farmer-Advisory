@@ -1,15 +1,18 @@
-# Exclude source directories from Vercel Serverless Function bundling
-client/
-server/
-ml_service/
-notebooks/
-# Exclude other common large/unnecessary files
-.git/
+# Exclude node_modules and local build artifacts
 node_modules/
-*.csv
+dist/
+client/node_modules/
+server/node_modules/
+
+# Exclude large non-build assets
+.git/
 *.mp4
 *.webp
 *.png
 *.jpg
 *.jpeg
-!api/models/*.pkl
+notebooks/
+ml_service/
+
+# DO NOT ignore client/ or server/ source code here if they are needed for the build process.
+# We will use vercel.json 'functions' configuration to exclude them from the final serverless bundles.

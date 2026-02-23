@@ -1,22 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/predict.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/**": {
+      "excludeFiles": "{client/**,server/**,ml_service/**,notebooks/**,notebooks/model_training.ipynb}"
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/api/predict",
@@ -25,10 +13,6 @@
     {
       "source": "/api/(.*)",
       "destination": "api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     }
   ]
 }
