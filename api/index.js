@@ -47,6 +47,22 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Render Unified Server is running' });
 });
 
+// Diagnostic route
+app.get('/api/diag', (req, res) => {
+    const fs = require('fs');
+    const distPath = path.join(__dirname, '../dist');
+    try {
+        const files = fs.readdirSync(distPath);
+        res.json({
+            status: 'ok',
+            distPath,
+            files
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message, distPath });
+    }
+});
+
 // Auth Routes
 app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
