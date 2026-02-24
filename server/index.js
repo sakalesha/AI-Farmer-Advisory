@@ -120,6 +120,8 @@ app.get('/api/weather', protect, async (req, res) => {
 });
 
 // Recommendation Route
+const cropRequirements = require('./data/cropRequirements');
+
 app.post('/api/recommend', protect, async (req, res) => {
     try {
         const { N, P, K, temperature, humidity, ph, rainfall } = req.body;
@@ -134,10 +136,35 @@ app.post('/api/recommend', protect, async (req, res) => {
 
         const { crop, irrigation } = mlResponse.data;
 
+        // Calculate Fertilizer Advice
+        const requirements = cropRequirements[crop.toLowerCase()];
+        let fertilizerAdvice = {};
+
+        if (requirements) {
+            const nDeficit = requirements.N - N;
+            const pDeficit = requirements.P - P;
+            const kDeficit = requirements.K - K;
+
+            fertilizerAdvice = {
+                N: nDeficit > 0 ? `Add ${nDeficit} units of Nitrogen` : 'Optimal',
+                P: pDeficit > 0 ? `Add ${pDeficit} units of Phosphorus` : 'Optimal',
+                K: kDeficit > 0 ? `Add ${kDeficit} units of Potassium` : 'Optimal',
+                summary: []
+            };
+
+            if (nDeficit > 0) fertilizerAdvice.summary.push(`Nitrogen deficiency detected for ${crop}.`);
+            if (pDeficit > 0) fertilizerAdvice.summary.push(`Phosphorus deficiency detected for ${crop}.`);
+            if (kDeficit > 0) fertilizerAdvice.summary.push(`Potassium deficiency detected for ${crop}.`);
+            if (fertilizerAdvice.summary.length === 0) fertilizerAdvice.summary.push(`Soil nutrient levels are optimal for ${crop}.`);
+        } else {
+            fertilizerAdvice = { summary: ["General NPK balanced fertilizer recommended."] };
+        }
+
         const newRecord = new Recommendation({
             user: req.user._id,
             inputs: { N, P, K, temperature, humidity, ph, rainfall },
-            prediction: { crop, irrigation }
+            prediction: { crop, irrigation },
+            fertilizer: fertilizerAdvice // Storing it loosely for now
         });
 
         await newRecord.save();
@@ -146,6 +173,7 @@ app.post('/api/recommend', protect, async (req, res) => {
             status: 'success',
             crop,
             irrigation,
+            fertilizer: fertilizerAdvice,
             recordId: newRecord._id
         });
     } catch (error) {

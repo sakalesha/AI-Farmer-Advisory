@@ -113,14 +113,27 @@ These are explicitly **out of scope** for now:
 
 ---
 
-## 🚀 Phase 2 Backlog (Post-MVP)
+## 🚀 Phase 2 — Advanced Advisory & Market Intelligence
 
-| Feature | Priority |
-|---|---|
-| User Authentication (Passport.js/JWT) | High |
-| Weather API integration (OpenWeatherMap) | High |
-| Yield prediction model | Medium |
-| Fertilizer dosage optimization | Medium |
+### Phase 2.1 · Fertilizer Dosage Optimizer
+- [x] Research NPK requirements for 22 crops
+- [x] Implement deficit calculation logic in Node.js
+- [x] Update UI to display fertilizer recommendations
+
+### Phase 2.2 · Yield Prediction Model (Regression)
+- [ ] Collect/Synthesize Yield data per crop type
+- [ ] Train Random Forest Regressor for Yield Estimation
+- [ ] Deploy new model to `ml/` service
+
+### Phase 2.3 · Market Analysis & Profitability
+- [ ] Integrate Commodity Price API (or simulation)
+- [ ] Calculate "Profit Potential" (Yield × Price)
+- [ ] Add Market Insight cards to dashboard
+
+### Phase 2.4 · Global Accessibility
+- [ ] Implement i18next for localization
+- [ ] Add support for Hindi/Kannada/Local languages
+- [ ] Voice-based input support (Optional)
 
 ---
 

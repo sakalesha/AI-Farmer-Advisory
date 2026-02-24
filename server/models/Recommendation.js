@@ -19,6 +19,12 @@ const recommendationSchema = new mongoose.Schema({
         crop: String,
         irrigation: String
     },
+    fertilizer: {
+        N: String,
+        P: String,
+        K: String,
+        summary: [String]
+    },
     createdAt: {
         type: Date,
         default: Date.now

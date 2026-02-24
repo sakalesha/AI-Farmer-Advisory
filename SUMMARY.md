@@ -213,7 +213,19 @@
 - **Code Portability:** Refactored `ml/app.py` to resolve model paths relative to its new dedicated folder.
 - **GitHub Synchronization:** Committed and pushed the final optimized project structure to the remote repository.
 
----
+## ✅ Step 14 — Fertilizer Optimization Advisory
+**Date:** 2026-02-24
+**Phase:** Phase 2 · Phase 2.1 · Fertilizer Dosage Optimizer
+
+### What We Did:
+- **Reference Data:** Created `server/data/cropRequirements.js` defining optimal NPK levels for 22 crops.
+- **Backend Optimization:** Updated the `/api/recommend` route to calculate nutrient deficits (Nitrogen, Phosphorus, Potassium) on-the-fly.
+- **Database Update:** Modified the `Recommendation` model to permanently store actionable fertilizer advice.
+- **UI Enhancement:** Added a dedicated **Fertilizer Advisory** section to the React dashboard with visual status cards and improvement summaries.
+- **Audit Log Sync:** Updated history items to highlight when actionable advice is available.
+
+### Next Step:
+→ **Yield Prediction:** Research and implement a regression model to estimate crop production quantity.
 
 
 
