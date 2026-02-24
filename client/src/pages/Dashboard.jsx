@@ -41,7 +41,22 @@ const Dashboard = () => {
     };
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        // Validation for decimal fields (ph, temperature)
+        if (['ph', 'temperature'].includes(name)) {
+            // Allow only numbers and one decimal point
+            const regex = /^[0-9]*\.?[0-9]*$/;
+            if (value === '' || regex.test(value)) {
+                setFormData({ ...formData, [name]: value });
+            }
+            return;
+        }
+
+        // Default for numeric integer fields
+        if (value === '' || /^\d*$/.test(value)) {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {

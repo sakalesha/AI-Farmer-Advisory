@@ -62,7 +62,16 @@ const SoilForm = ({
                         </div>
                         <div className="relative">
                             <Beaker className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 w-4 h-4" />
-                            <input type="number" step="0.1" name="ph" value={formData.ph} onChange={handleInputChange} required placeholder="6.5" className="input-glass w-full rounded-xl p-4 pl-12 font-bold" />
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                name="ph"
+                                value={formData.ph}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="6.5"
+                                className="input-glass w-full rounded-xl p-4 pl-12 font-bold"
+                            />
                         </div>
                     </div>
                     <div className="space-y-3">
@@ -72,7 +81,16 @@ const SoilForm = ({
                         </div>
                         <div className="relative">
                             <Thermometer className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 w-4 h-4" />
-                            <input type="number" step="0.1" name="temperature" value={formData.temperature} onChange={handleInputChange} required placeholder="28.4" className="input-glass w-full rounded-xl p-4 pl-12 font-bold" />
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                name="temperature"
+                                value={formData.temperature}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="28.4"
+                                className="input-glass w-full rounded-xl p-4 pl-12 font-bold"
+                            />
                         </div>
                     </div>
                     <div className="space-y-3">
