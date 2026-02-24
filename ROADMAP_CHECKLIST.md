@@ -120,10 +120,10 @@ These are explicitly **out of scope** for now:
 - [x] Implement deficit calculation logic in Node.js
 - [x] Update UI to display fertilizer recommendations
 
-### Phase 2.2 · Yield Prediction Model (Regression)
-- [ ] Collect/Synthesize Yield data per crop type
-- [ ] Train Random Forest Regressor for Yield Estimation
-- [ ] Deploy new model to `ml/` service
+### Phase 2.2 · Yield Prediction Engine (Heuristic)
+- [x] Synthesize Yield data benchmarks for 22 crops
+- [x] Implement Nutrient-weighted Yield Estimator logic
+- [x] Update Dashboard to show predicted yield tonnage (T/Ha)
 
 ### Phase 2.3 · Market Analysis & Profitability
 - [ ] Integrate Commodity Price API (or simulation)

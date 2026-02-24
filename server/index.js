@@ -2,14 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const axios = require('axios');
-
-const User = require('./models/User');
-const Recommendation = require('./models/Recommendation');
-const authController = require('./controllers/authController');
-const { protect } = require('./middleware/authMiddleware');
-
 const path = require('path');
+
+// Route Imports
+const authRoutes = require('./routes/authRoutes');
+const recommendRoutes = require('./routes/recommendRoutes');
+const weatherRoutes = require('./routes/weatherRoutes');
+const historyRoutes = require('./routes/historyRoutes');
 
 dotenv.config();
 
@@ -32,16 +31,6 @@ const connectToDatabase = async () => {
     return db;
 };
 
-// Basic health check (Resilient - no DB required)
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        message: 'Render Unified Server is running',
-        uptime: process.uptime(),
-        timestamp: new Date().toISOString()
-    });
-});
-
 // Middleware to ensure DB connection
 app.use(async (req, res, next) => {
     // Skip DB check for health/diag routes just in case
@@ -57,7 +46,15 @@ app.use(async (req, res, next) => {
     }
 });
 
-// Routes (Moved health check above middleware)
+// Basic health check
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Render Unified Server is running',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Diagnostic route
 app.get('/api/diag', (req, res) => {
@@ -75,127 +72,14 @@ app.get('/api/diag', (req, res) => {
     }
 });
 
-// Auth Routes
-app.post('/api/auth/register', authController.register);
-app.post('/api/auth/login', authController.login);
+// Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/recommend', recommendRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/history', historyRoutes);
 
-// GET /api/weather
-app.get('/api/weather', protect, async (req, res) => {
-    try {
-        const { lat, lon } = req.query;
-        const apiKey = process.env.WEATHER_API_KEY;
-
-        if (!lat || !lon) {
-            return res.status(400).json({ status: 'error', message: 'Latitude and longitude are required' });
-        }
-
-        if (!apiKey || apiKey === 'your_openweathermap_api_key_here') {
-            return res.json({
-                status: 'success',
-                mode: 'simulation',
-                data: {
-                    temp: 24 + Math.random() * 8,
-                    humidity: 60 + Math.random() * 20,
-                    rainfall: 80 + Math.random() * 150
-                }
-            });
-        }
-
-        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
-        const response = await axios.get(weatherUrl);
-        const rain = response.data.rain ? (response.data.rain['1h'] || 0) : 0;
-
-        res.json({
-            status: 'success',
-            mode: 'live',
-            data: {
-                temp: response.data.main.temp,
-                humidity: response.data.main.humidity,
-                rainfall: rain * 100
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-});
-
-// Recommendation Route
-const cropRequirements = require('./data/cropRequirements');
-
-app.post('/api/recommend', protect, async (req, res) => {
-    try {
-        const { N, P, K, temperature, humidity, ph, rainfall } = req.body;
-
-        // Internal call to Python service running on port 5001
-        const ML_SERVICE_PORT = process.env.ML_SERVICE_PORT || 5001;
-        const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict`;
-
-        const mlResponse = await axios.post(ML_URL, {
-            N, P, K, temperature, humidity, ph, rainfall
-        });
-
-        const { crop, irrigation } = mlResponse.data;
-
-        // Calculate Fertilizer Advice
-        const requirements = cropRequirements[crop.toLowerCase()];
-        let fertilizerAdvice = {};
-
-        if (requirements) {
-            const nDeficit = requirements.N - N;
-            const pDeficit = requirements.P - P;
-            const kDeficit = requirements.K - K;
-
-            fertilizerAdvice = {
-                N: nDeficit > 0 ? `Add ${nDeficit} units of Nitrogen` : 'Optimal',
-                P: pDeficit > 0 ? `Add ${pDeficit} units of Phosphorus` : 'Optimal',
-                K: kDeficit > 0 ? `Add ${kDeficit} units of Potassium` : 'Optimal',
-                summary: []
-            };
-
-            if (nDeficit > 0) fertilizerAdvice.summary.push(`Nitrogen deficiency detected for ${crop}.`);
-            if (pDeficit > 0) fertilizerAdvice.summary.push(`Phosphorus deficiency detected for ${crop}.`);
-            if (kDeficit > 0) fertilizerAdvice.summary.push(`Potassium deficiency detected for ${crop}.`);
-            if (fertilizerAdvice.summary.length === 0) fertilizerAdvice.summary.push(`Soil nutrient levels are optimal for ${crop}.`);
-        } else {
-            fertilizerAdvice = { summary: ["General NPK balanced fertilizer recommended."] };
-        }
-
-        const newRecord = new Recommendation({
-            user: req.user._id,
-            inputs: { N, P, K, temperature, humidity, ph, rainfall },
-            prediction: { crop, irrigation },
-            fertilizer: fertilizerAdvice // Storing it loosely for now
-        });
-
-        await newRecord.save();
-
-        res.json({
-            status: 'success',
-            crop,
-            irrigation,
-            fertilizer: fertilizerAdvice,
-            recordId: newRecord._id
-        });
-    } catch (error) {
-        console.error('❌ Error in /api/recommend:', error.message);
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-});
-
-// History Route
-app.get('/api/history', protect, async (req, res) => {
-    try {
-        const history = await Recommendation.find({ user: req.user._id })
-            .sort({ createdAt: -1 })
-            .limit(10);
-        res.json(history);
-    } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-});
-
-// Fallback for SPA routing: serve index.html for all other routes
-app.get('/*any', (req, res) => {
+// Fallback for SPA routing
+app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 

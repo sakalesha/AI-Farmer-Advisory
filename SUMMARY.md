@@ -224,8 +224,41 @@
 - **UI Enhancement:** Added a dedicated **Fertilizer Advisory** section to the React dashboard with visual status cards and improvement summaries.
 - **Audit Log Sync:** Updated history items to highlight when actionable advice is available.
 
+## ✅ Step 15 — Clean MVC Server Architecture
+**Date:** 2026-02-24
+**Phase:** Architectural Refinement · Backend
+
+### What We Did:
+- **Concerns Separation:** Transitioned `server/index.js` from a monolith to a clean MVC-style architecture.
+- **Controllers:** Extracted business logic into `server/controllers/` (Auth, Recommendation, Weather, History).
+- **Routers:** Dedicated `server/routes/` for clean URL definitions and middleware mapping.
+- **Maintainability:** Streamlined the main entry point to just ~100 lines of configuration and mounting.
+
+---
+
+## ✅ Step 16 — Modular React Client Architecture
+**Date:** 2026-02-24
+**Phase:** Architectural Refinement · Frontend
+
+### What We Did:
+- **Atomic UI Design:** Extracted reusable atoms (`NutrientBar`, `cn` utility) for consistency across the app.
+- **Modular Components:** Broke down the massive `App.jsx` into feature-specific components (`SoilForm`, `RecommendationResult`, `HistoryLog`).
+- **Page Orchestration:** Created a dedicated `Dashboard.jsx` page to manage state and coordination.
+- **Scalable Entry Point:** Refactored `App.jsx` into a lightweight ~20 line router for Auth and Main views.
+
+## ✅ Step 17 — Predictive Yield Engine
+**Date:** 2026-02-24
+**Phase:** Phase 2 · Phase 2.2 · Yield Prediction Engine
+
+### What We Did:
+- **Benchmark Data:** Created `server/data/yieldData.js` with average Tons per Hectare (T/Ha) for 22 crops.
+- **Heuristic Engine:** Implemented a nutrient-weighted yield estimator in `recommendController.js`.
+- **Dynamic Logic:** The system now adjusts potential yield based on how well the soil's NPK levels match the crop's requirements.
+- **UI Integration:** Updated the `RecommendationResult` component to display the "Est. Yield" next to the Irrigation Index.
+- **Persistence:** Stored the predicted yield in each recommendation record for historical tracking.
+
 ### Next Step:
-→ **Yield Prediction:** Research and implement a regression model to estimate crop production quantity.
+→ **Phase 2.3 Market Analysis:** Integrate commodity pricing to estimate profit potential.
 
 
 
