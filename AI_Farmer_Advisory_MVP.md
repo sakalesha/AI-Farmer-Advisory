@@ -111,13 +111,29 @@ These can be added in Phase 2.
 
 ------------------------------------------------------------------------
 
-# 🚀 Phase 2 Enhancements
+# 🚀 Future Expansion Roadmap
 
--   Weather API integration\
--   Yield prediction\
--   Fertilizer optimization\
--   Regional crop database\
--   Offline-first mobile version
+### Phase 2: Advanced Advisory (Completed/Refining)
+-   Weather API Integration\
+-   Yield Prediction Engine\
+-   Fertilizer Optimization\
+-   Market Price & Profitability Analysis
+
+### Phase 3: Analytics & Visualization
+-   Yield Trend Charts (Historical Analysis)\
+-   Market Volatility Heatmaps\
+-   Sector-wise Farm Comparison
+
+### Phase 4: Machine Learning Evolution
+-   Predictive Price Forecasting (LSTM)\
+-   Image-based Pest/Disease Detection (CV)\
+-   Deep Learning for yield regression
+
+### Phase 5: Ecosystem & IoT
+-   Live IoT Soil Sensor Integration (ESP32)\
+-   Satellite NDVI Health Monitoring\
+-   Offline-first PWA for remote areas\
+-   Professional PDF Financial Reports
 
 ------------------------------------------------------------------------
 

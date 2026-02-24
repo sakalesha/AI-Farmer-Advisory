@@ -281,5 +281,22 @@
 ### Next Step:
 → **Phase 2.4 Global Accessibility:** Begin implementation of i18next for multi-language support (Hindi, Kannada, etc.) and voice interaction.
 
+---
+
+## 🗺️ Long-Term Vision & Ecosystem Expansion
+Beyond the current Phase 2 advisory features, the project is structured to scale into a holistic farming ecosystem:
+
+### 📊 Phase 3 — Analytics & Insight
+- Historical Yield Analysis for data-driven benchmarking.
+- Market Volatility simulations for risk management.
+
+### 🔬 Phase 4 — AI & Intelligence Evolution
+- Graduating from heuristics to predictive Regression models for yield.
+- Integrating Computer Vision (YOLO) for real-time pest/disease identification.
+
+### 🔌 Phase 5 — IoT & Real-World Integration
+- Live hardware integration with soil nutrient sensors (IoT).
+- Satellite NDVI health indexing for regional farm monitoring.
+
 
 
