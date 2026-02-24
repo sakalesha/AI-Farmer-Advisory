@@ -28,21 +28,21 @@ const RecommendationResult = ({ result, setResult }) => {
                     </span>
                 </motion.div>
 
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-20">
-                    <div className="space-y-2">
-                        <p className="text-slate-500 text-xs font-black uppercase tracking-widest">Target Crop</p>
+                <div className="flex flex-col items-center justify-center space-y-8">
+                    <div className="space-y-2 text-center">
+                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Target Crop</p>
                         <h2 className="text-6xl md:text-8xl font-black text-emerald-950 capitalize tracking-tighter">
                             {result.prediction?.crop || result.crop}
                         </h2>
                     </div>
 
-                    <div className="h-px w-full bg-emerald-500/10 my-8"></div>
+                    <div className="h-px w-full max-w-2xl bg-emerald-500/10"></div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl mx-auto">
                         <div className="space-y-4">
-                            <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left">Irrigation Index</p>
+                            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center">Irrigation Index</p>
                             <div className={cn(
-                                "px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 shadow-xl",
+                                "px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center gap-3 shadow-xl",
                                 (result.prediction?.irrigation || result.irrigation) === 'High' ? "bg-rose-500 text-white shadow-rose-200" :
                                     (result.prediction?.irrigation || result.irrigation) === 'Medium' ? "bg-amber-500 text-white shadow-amber-200" :
                                         "bg-emerald-500 text-white shadow-emerald-200"
@@ -53,8 +53,8 @@ const RecommendationResult = ({ result, setResult }) => {
                         </div>
 
                         <div className="space-y-4">
-                            <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left">Est. Yield</p>
-                            <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-blue-600 text-white shadow-xl shadow-blue-100">
+                            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center">Est. Yield</p>
+                            <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center gap-3 bg-blue-600 text-white shadow-xl shadow-blue-100">
                                 <Activity className="w-6 h-6" />
                                 {result.prediction?.yield || result.yield} <span className="text-[10px] opacity-70">T/Ha</span>
                             </div>
@@ -63,8 +63,8 @@ const RecommendationResult = ({ result, setResult }) => {
                         {(result.market || result.prediction?.marketPrice) && (
                             <>
                                 <div className="space-y-4">
-                                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left truncate">Market Value</p>
-                                    <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-purple-600 text-white shadow-xl shadow-purple-100 relative group/market">
+                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center truncate">Market Value</p>
+                                    <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center gap-3 bg-purple-600 text-white shadow-xl shadow-purple-100 relative group/market">
                                         <Zap className="w-6 h-6" />
                                         ${result.market?.pricePerTon || result.prediction?.marketPrice}
                                         <div className={cn(
@@ -77,8 +77,8 @@ const RecommendationResult = ({ result, setResult }) => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left truncate">Profit Potential</p>
-                                    <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-emerald-600 text-white shadow-xl shadow-emerald-100">
+                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center truncate">Profit Potential</p>
+                                    <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center gap-3 bg-emerald-600 text-white shadow-xl shadow-emerald-100">
                                         <Beaker className="w-6 h-6" />
                                         ${(result.market?.estimatedRevenue || result.prediction?.estimatedRevenue)?.toLocaleString()}
                                     </div>
