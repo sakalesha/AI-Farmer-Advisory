@@ -126,9 +126,9 @@ These are explicitly **out of scope** for now:
 - [x] Update Dashboard to show predicted yield tonnage (T/Ha)
 
 ### Phase 2.3 · Market Analysis & Profitability
-- [ ] Integrate Commodity Price API (or simulation)
-- [ ] Calculate "Profit Potential" (Yield × Price)
-- [ ] Add Market Insight cards to dashboard
+- [x] Integrate Commodity Price reference data
+- [x] Calculate "Profit Potential" (Yield × Price)
+- [x] Add Market Insight cards to dashboard
 
 ### Phase 2.4 · Global Accessibility
 - [ ] Implement i18next for localization

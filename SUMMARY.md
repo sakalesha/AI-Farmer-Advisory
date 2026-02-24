@@ -257,8 +257,18 @@
 - **UI Integration:** Updated the `RecommendationResult` component to display the "Est. Yield" next to the Irrigation Index.
 - **Persistence:** Stored the predicted yield in each recommendation record for historical tracking.
 
+## ✅ Step 18 — Market Analysis & Profitability
+**Date:** 2026-02-24
+**Phase:** Phase 2 · Phase 2.3 · Market Analysis & Profitability
+
+### What We Did:
+- **Price Reference:** Created `server/data/marketPrices.js` with average global prices per ton for 22 crops.
+- **Financial Logic:** Updated `recommendController.js` to calculate estimated revenue and simulate market trends.
+- **Profit Dashboard:** Enhanced the result UI with "Market Value" and "Profit Potential" cards, featuring interactive trend indicators.
+- **Volatility Simulation:** Implemented a randomized trend engine to provide dynamic market insights (Up/Down/Stable).
+
 ### Next Step:
-→ **Phase 2.3 Market Analysis:** Integrate commodity pricing to estimate profit potential.
+→ **Phase 2.4 Global Accessibility:** Implement localization and voice-based input support for broader reach.
 
 
 

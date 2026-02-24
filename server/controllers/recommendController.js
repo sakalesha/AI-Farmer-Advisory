@@ -2,6 +2,7 @@ const axios = require('axios');
 const Recommendation = require('../models/Recommendation');
 const cropRequirements = require('../data/cropRequirements');
 const yieldData = require('../data/yieldData');
+const marketPrices = require('../data/marketPrices');
 
 exports.getRecommendation = async (req, res) => {
     try {
@@ -57,13 +58,24 @@ exports.getRecommendation = async (req, res) => {
             estimatedYield = baseYield * (0.7 + (0.3 * nutrientScore));
         }
 
+        // 3. Market Analysis & Profitability
+        const pricePerTon = marketPrices[crop.toLowerCase()] || 500;
+        const estimatedRevenue = estimatedYield * pricePerTon;
+
+        // Simulate a market trend (-5% to +15% volatility)
+        const trendValue = (Math.random() * 20) - 5;
+        const marketTrend = trendValue > 2 ? 'Up' : trendValue < -2 ? 'Down' : 'Stable';
+
         const newRecord = new Recommendation({
             user: req.user._id,
             inputs: { N, P, K, temperature, humidity, ph, rainfall },
             prediction: {
                 crop,
                 irrigation,
-                yield: estimatedYield.toFixed(2) // Storing yield in the record
+                yield: estimatedYield.toFixed(2), // Storing yield in the record
+                marketPrice: pricePerTon,
+                estimatedRevenue: Math.round(estimatedRevenue),
+                marketTrend
             },
             fertilizer: fertilizerAdvice
         });
@@ -75,6 +87,11 @@ exports.getRecommendation = async (req, res) => {
             crop,
             irrigation,
             yield: estimatedYield.toFixed(2),
+            market: {
+                pricePerTon,
+                estimatedRevenue: Math.round(estimatedRevenue),
+                trend: marketTrend
+            },
             fertilizer: fertilizerAdvice,
             recordId: newRecord._id
         });
