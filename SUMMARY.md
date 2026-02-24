@@ -267,15 +267,16 @@
 - **Profit Dashboard:** Enhanced the result UI with "Market Value" and "Profit Potential" cards, featuring interactive trend indicators.
 - **Volatility Simulation:** Implemented a randomized trend engine to provide dynamic market insights (Up/Down/Stable).
 
-## ✅ Step 19 — Feature Refinement & Interactivity
+## ✅ Step 19 — Feature Refinement, Layout & Deployment Success
 **Date:** 2026-02-24
 **Phase:** Phase 2 · Refinement & Debugging
 
 ### What We Did:
 - **Persistence Fix**: Updated the Mongoose `Recommendation` model to ensure `yield` and `market` data are permanently stored in MongoDB.
 - **Interactive History**: Refactored the `HistoryLog` to be interactive—users can now click any past record to view its full market analysis and fertilizer advisory.
-- **UI Consistency**: Updated the `RecommendationResult` component to handle both real-time API responses and historical data structures seamlessly.
-- **Reliability**: Scaled the grid layout and fixed CSS visibility issues for a sharper, more data-rich presentation.
+- **Decimal Precision**: Fixed a critical input bug where pH decimals (e.g., 6.2) were stripped to integers. Migrated decimal inputs to a robust regex-validated text system.
+- **Layout Overhaul**: Resolved component overlapping by refactoring `RecommendationResult` to a centered, vertical stack layout. This ensures a clean, professional look on all screen resolutions.
+- **Production Deployment**: Successfully bypassed Render/Express 5 routing errors by implementing a RegExp-based catch-all (`/.* /`).
 
 ### Next Step:
 → **Phase 2.4 Global Accessibility:** Begin implementation of i18next for multi-language support (Hindi, Kannada, etc.) and voice interaction.

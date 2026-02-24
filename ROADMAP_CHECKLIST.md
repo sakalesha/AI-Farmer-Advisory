@@ -130,10 +130,30 @@ These are explicitly **out of scope** for now:
 - [x] Calculate "Profit Potential" (Yield × Price)
 - [x] Add Market Insight cards to dashboard
 
-### Phase 2.4 · Global Accessibility
+### Phase 2.4 · Global Accessibility (Deferred)
 - [ ] Implement i18next for localization
 - [ ] Add support for Hindi/Kannada/Local languages
-- [ ] Voice-based input support (Optional)
+- [ ] Voice-based input support
+
+---
+
+## 📅 Future Horizons — Farm Management Ecosystem
+
+### Phase 3 · Advanced Analytics & Visualization
+- [ ] Implement **Yield Trend Charts** (Recharts)
+- [ ] Add **Profit Probability Heatmaps**
+- [ ] Build **Sector Comparison Engine** (Split-field analysis)
+
+### Phase 4 · Machine Learning Evolution
+- [ ] Train **Real Yield Regression Model** (beyond heuristic)
+- [ ] Integrate **LSTM Price Forecasting** for market trends
+- [ ] Implement **Computer Vision (YOLO)** for Pest/Disease detection
+
+### Phase 5 · Ecosystem Integration & IoT
+- [ ] Develop **IoT Sensor Hub** (ESP32/WebSocket integration)
+- [ ] Add **NDVI Satellite Layer** (Sentinel-2 API)
+- [ ] Implement **Professional PDF Report Export**
+- [ ] Enable **Offline Support (PWA)** for rural use
 
 ---
 
