@@ -154,7 +154,7 @@ const Dashboard = () => {
 
                     {/* Right Side: History Log */}
                     <div className="lg:col-span-4 sticky top-32">
-                        <HistoryLog history={history} />
+                        <HistoryLog history={history} onSelect={setResult} />
                     </div>
                 </div>
             </main>

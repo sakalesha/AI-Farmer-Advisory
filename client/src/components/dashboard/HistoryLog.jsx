@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { History, Zap, Activity, Database, Info, ChevronRight } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-const HistoryLog = ({ history }) => {
+const HistoryLog = ({ history, onSelect }) => {
     return (
         <div className="glass-card rounded-[2.5rem] overflow-hidden flex flex-col max-h-[calc(100vh-160px)]">
             <div className="p-8 border-b border-emerald-500/10 flex items-center justify-between">
@@ -25,7 +25,8 @@ const HistoryLog = ({ history }) => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
                                 key={item._id}
-                                className="bg-white/50 hover:bg-white p-5 rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all cursor-default group"
+                                onClick={() => onSelect(item)}
+                                className="bg-white/50 hover:bg-white p-5 rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all cursor-pointer group"
                             >
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="font-black text-lg text-emerald-900 capitalize group-hover:text-emerald-600 transition-colors">

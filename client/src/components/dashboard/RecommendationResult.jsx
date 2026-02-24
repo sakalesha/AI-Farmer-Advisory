@@ -32,23 +32,23 @@ const RecommendationResult = ({ result, setResult }) => {
                     <div className="space-y-2">
                         <p className="text-slate-500 text-xs font-black uppercase tracking-widest">Target Crop</p>
                         <h2 className="text-6xl md:text-8xl font-black text-emerald-950 capitalize tracking-tighter">
-                            {result.crop}
+                            {result.prediction?.crop || result.crop}
                         </h2>
                     </div>
 
-                    <div className="h-1px w-full bg-emerald-500/10 my-8 hidden md:block"></div>
+                    <div className="h-px w-full bg-emerald-500/10 my-8"></div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                         <div className="space-y-4">
                             <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left">Irrigation Index</p>
                             <div className={cn(
                                 "px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 shadow-xl",
-                                result.irrigation === 'High' ? "bg-rose-500 text-white shadow-rose-200" :
-                                    result.irrigation === 'Medium' ? "bg-amber-500 text-white shadow-amber-200" :
+                                (result.prediction?.irrigation || result.irrigation) === 'High' ? "bg-rose-500 text-white shadow-rose-200" :
+                                    (result.prediction?.irrigation || result.irrigation) === 'Medium' ? "bg-amber-500 text-white shadow-amber-200" :
                                         "bg-emerald-500 text-white shadow-emerald-200"
                             )}>
                                 <Droplets className="w-6 h-6" />
-                                {result.irrigation}
+                                {result.prediction?.irrigation || result.irrigation}
                             </div>
                         </div>
 
@@ -56,22 +56,22 @@ const RecommendationResult = ({ result, setResult }) => {
                             <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left">Est. Yield</p>
                             <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-blue-600 text-white shadow-xl shadow-blue-100">
                                 <Activity className="w-6 h-6" />
-                                {result.yield} <span className="text-[10px] opacity-70">T/Ha</span>
+                                {result.prediction?.yield || result.yield} <span className="text-[10px] opacity-70">T/Ha</span>
                             </div>
                         </div>
 
-                        {result.market && (
+                        {(result.market || result.prediction?.marketPrice) && (
                             <>
                                 <div className="space-y-4">
                                     <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left truncate">Market Value</p>
                                     <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-purple-600 text-white shadow-xl shadow-purple-100 relative group/market">
                                         <Zap className="w-6 h-6" />
-                                        ${result.market.pricePerTon}
+                                        ${result.market?.pricePerTon || result.prediction?.marketPrice}
                                         <div className={cn(
                                             "absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center border-2 border-white text-white text-[10px]",
-                                            result.market.trend === 'Up' ? "bg-emerald-500" : result.market.trend === 'Down' ? "bg-rose-500" : "bg-slate-400"
+                                            (result.market?.trend || result.prediction?.marketTrend) === 'Up' ? "bg-emerald-500" : (result.market?.trend || result.prediction?.marketTrend) === 'Down' ? "bg-rose-500" : "bg-slate-400"
                                         )}>
-                                            {result.market.trend === 'Up' ? '↑' : result.market.trend === 'Down' ? '↓' : '→'}
+                                            {(result.market?.trend || result.prediction?.marketTrend) === 'Up' ? '↑' : (result.market?.trend || result.prediction?.marketTrend) === 'Down' ? '↓' : '→'}
                                         </div>
                                     </div>
                                 </div>
@@ -80,7 +80,7 @@ const RecommendationResult = ({ result, setResult }) => {
                                     <p className="text-slate-500 text-xs font-black uppercase tracking-widest text-center md:text-left truncate">Profit Potential</p>
                                     <div className="px-6 py-4 rounded-3xl font-black text-xl flex items-center justify-center md:justify-start gap-3 bg-emerald-600 text-white shadow-xl shadow-emerald-100">
                                         <Beaker className="w-6 h-6" />
-                                        ${result.market.estimatedRevenue.toLocaleString()}
+                                        ${(result.market?.estimatedRevenue || result.prediction?.estimatedRevenue)?.toLocaleString()}
                                     </div>
                                 </div>
                             </>
