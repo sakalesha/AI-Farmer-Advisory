@@ -7,6 +7,10 @@ import Navbar from '../components/layout/Navbar';
 import RecommendationResult from '../components/dashboard/RecommendationResult';
 import SoilForm from '../components/dashboard/SoilForm';
 import HistoryLog from '../components/dashboard/HistoryLog';
+import YieldTrendChart from '../components/dashboard/YieldTrendChart';
+import ProfitHeatmap from '../components/dashboard/ProfitHeatmap';
+import SectorComparison from '../components/dashboard/SectorComparison';
+import { BarChart3, LayoutDashboard, Scale as ScaleIcon } from 'lucide-react';
 
 const API_URL = '/api';
 
@@ -22,6 +26,9 @@ const Dashboard = () => {
     const [history, setHistory] = useState([]);
     const [error, setError] = useState(null);
     const [weatherLoading, setWeatherLoading] = useState(false);
+    const [view, setView] = useState('dashboard'); // 'dashboard' or 'analytics'
+    const [compareItems, setCompareItems] = useState([]);
+    const [showComparison, setShowComparison] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -123,6 +130,15 @@ const Dashboard = () => {
         });
     };
 
+    const handleCompareToggle = (item) => {
+        setCompareItems(prev => {
+            const exists = prev.find(i => i._id === item._id);
+            if (exists) return prev.filter(i => i._id !== item._id);
+            if (prev.length >= 2) return [prev[1], item];
+            return [...prev, item];
+        });
+    };
+
     return (
         <div className="min-h-screen text-slate-900 selection:bg-emerald-200">
             <Navbar user={user} logout={logout} />
@@ -130,25 +146,67 @@ const Dashboard = () => {
             <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Left Side: Prediction Engine */}
-                    <div className="lg:col-span-8 space-y-8">
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+                        <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-gray-100 w-fit">
+                            <button
+                                onClick={() => setView('dashboard')}
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${view === 'dashboard' ? 'bg-white shadow-lg text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <LayoutDashboard className="w-4 h-4" />
+                                Advisory
+                            </button>
+                            <button
+                                onClick={() => setView('analytics')}
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${view === 'analytics' ? 'bg-white shadow-lg text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <BarChart3 className="w-4 h-4" />
+                                Analytics
+                            </button>
+                        </div>
+
                         <AnimatePresence mode="wait">
-                            {result ? (
-                                <RecommendationResult result={result} setResult={setResult} />
+                            {view === 'dashboard' ? (
+                                <div className="space-y-8">
+                                    {result ? (
+                                        <RecommendationResult result={result} setResult={setResult} />
+                                    ) : (
+                                        <motion.div
+                                            key="form"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="glass-card p-1 pb-1 rounded-[2.5rem]"
+                                        >
+                                            <SoilForm
+                                                formData={formData}
+                                                handleInputChange={handleInputChange}
+                                                handleSubmit={handleSubmit}
+                                                handleSyncWeather={handleSyncWeather}
+                                                loading={loading}
+                                                weatherLoading={weatherLoading}
+                                            />
+                                        </motion.div>
+                                    )}
+                                </div>
                             ) : (
                                 <motion.div
-                                    key="form"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="glass-card p-1 pb-1 rounded-[2.5rem]"
+                                    key="analytics"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="space-y-6"
                                 >
-                                    <SoilForm
-                                        formData={formData}
-                                        handleInputChange={handleInputChange}
-                                        handleSubmit={handleSubmit}
-                                        handleSyncWeather={handleSyncWeather}
-                                        loading={loading}
-                                        weatherLoading={weatherLoading}
-                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <YieldTrendChart history={history} />
+                                        <ProfitHeatmap history={history} />
+                                    </div>
+                                    <div className="glass-card p-12 text-center rounded-[2.5rem] bg-gradient-to-br from-indigo-500/5 to-emerald-500/5 border border-emerald-500/10">
+                                        <BarChart3 className="w-12 h-12 mx-auto mb-4 text-emerald-400/50" />
+                                        <h4 className="text-xl font-black text-slate-800 tracking-tight">Advanced Field Intelligence</h4>
+                                        <p className="text-slate-400 text-sm font-medium mt-2 max-w-md mx-auto">
+                                            Visualizing your farm's performance over time. Use the historical data to identify patterns in crop success and soil vitality.
+                                        </p>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -168,10 +226,65 @@ const Dashboard = () => {
                     </div>
 
                     {/* Right Side: History Log */}
-                    <div className="lg:col-span-4 sticky top-32">
-                        <HistoryLog history={history} onSelect={setResult} />
+                    <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-6">
+                        {compareItems.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-emerald-900 rounded-[2rem] p-6 text-white shadow-xl shadow-emerald-900/20"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <ScaleIcon className="w-4 h-4 text-emerald-400" />
+                                        <p className="text-xs font-black uppercase tracking-widest text-emerald-400">Comparison Hub</p>
+                                    </div>
+                                    <span className="bg-emerald-500 text-xs font-black px-2 py-0.5 rounded-lg">{compareItems.length}/2</span>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    {compareItems.map(item => (
+                                        <div key={item._id} className="flex justify-between items-center bg-white/10 p-3 rounded-xl border border-white/5">
+                                            <span className="text-sm font-black capitalize">{item.prediction.crop}</span>
+                                            <span className="text-[10px] text-white/40 font-mono truncate max-w-[80px]">#{item._id.slice(-6)}</span>
+                                        </div>
+                                    ))}
+                                    {compareItems.length < 2 && (
+                                        <div className="dashed-border min-h-[44px] rounded-xl flex items-center justify-center p-3 border border-dashed border-white/20">
+                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-tighter">Select another field</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    disabled={compareItems.length < 2}
+                                    onClick={() => setShowComparison(true)}
+                                    className="w-full bg-white text-emerald-900 font-black py-4 rounded-2xl hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+                                >
+                                    Compare Scenarios
+                                </button>
+                                <button
+                                    onClick={() => setCompareItems([])}
+                                    className="w-full mt-2 text-[10px] font-black text-white/40 uppercase hover:text-white transition-colors"
+                                >
+                                    Clear Selection
+                                </button>
+                            </motion.div>
+                        )}
+                        <HistoryLog
+                            history={history}
+                            onSelect={setResult}
+                            onCompareSelect={handleCompareToggle}
+                            selectedItems={compareItems}
+                        />
                     </div>
                 </div>
+
+                <AnimatePresence>
+                    {showComparison && (
+                        <SectorComparison
+                            items={compareItems}
+                            onClose={() => setShowComparison(false)}
+                        />
+                    )}
+                </AnimatePresence>
             </main>
 
             <footer className="max-w-7xl mx-auto p-12 text-center">

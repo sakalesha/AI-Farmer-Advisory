@@ -140,9 +140,9 @@ These are explicitly **out of scope** for now:
 ## 📅 Future Horizons — Farm Management Ecosystem
 
 ### Phase 3 · Advanced Analytics & Visualization
-- [ ] Implement **Yield Trend Charts** (Recharts)
-- [ ] Add **Profit Probability Heatmaps**
-- [ ] Build **Sector Comparison Engine** (Split-field analysis)
+- [x] Implement **Yield Trend Charts** (Recharts)
+- [x] Add **Profit Probability Heatmaps**
+- [x] Build **Sector Comparison Engine** (Split-field analysis)
 
 ### Phase 4 · Machine Learning Evolution
 - [ ] Train **Real Yield Regression Model** (beyond heuristic)

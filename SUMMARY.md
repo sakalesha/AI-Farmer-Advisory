@@ -281,7 +281,20 @@
 ### Next Step:
 → **Phase 2.4 Global Accessibility:** Begin implementation of i18next for multi-language support (Hindi, Kannada, etc.) and voice interaction.
 
----
+
+## ✅ Step 20 — Advanced Analytics & Visualization
+**Date:** 2026-02-25
+**Phase:** Phase 3 · Advanced Analytics & Visualization
+
+### What We Did:
+- **Visual Intelligence:** Integrated `recharts` to provide data-driven insights.
+- **Yield Trend Charts:** Built a dynamic area chart that tracks historical crop yield performance over time.
+- **Profit Heatmaps:** Developed a correlations scatter plot showing the relationship between Yield, Revenue, and Profitability.
+- **Sector Comparison Engine:** Implemented a side-by-side field comparison tool. Farmers can now select any two history records to compare soil conditions, predicted yields, and financial outcomes.
+- **UI Interaction:** Added a "Comparison Hub" to the sidebar and a toggle between "Advisory" and "Analytics" views for a cleaner, professional dashboard experience.
+
+### Next Step:
+→ **Phase 4 · Machine Learning Evolution:** Transition from heuristic yield estimation to a dedicated Regression model for higher precision.
 
 ## 🗺️ Long-Term Vision & Ecosystem Expansion
 Beyond the current Phase 2 advisory features, the project is structured to scale into a holistic farming ecosystem:
