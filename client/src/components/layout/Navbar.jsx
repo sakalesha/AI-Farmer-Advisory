@@ -19,7 +19,7 @@ const Navbar = ({ user, logout, view, setView }) => {
                         <Sprout className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <p className="text-sm font-black text-slate-100 tracking-tight leading-none">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                        <p className="text-sm font-black text-slate-100 tracking-tight leading-none">Agro<span className="text-emerald-400">Insight</span></p>
                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">AGRI-AI PLATFORM</p>
                     </div>
                 </div>
@@ -78,8 +78,8 @@ const Navbar = ({ user, logout, view, setView }) => {
                         key={id}
                         onClick={() => setView(id)}
                         className={`flex flex-col items-center gap-1 py-2 px-4 rounded-xl transition-all text-[10px] font-bold uppercase tracking-wider ${view === id
-                                ? 'text-emerald-400'
-                                : 'text-slate-500'
+                            ? 'text-emerald-400'
+                            : 'text-slate-500'
                             }`}
                     >
                         <Icon className={`w-5 h-5 ${view === id ? 'text-emerald-400' : 'text-slate-500'}`} />

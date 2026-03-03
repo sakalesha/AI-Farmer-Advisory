@@ -53,7 +53,7 @@ const AuthPage = () => {
                         <Sprout className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <p className="text-base font-black text-slate-100 tracking-tight">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                        <p className="text-base font-black text-slate-100 tracking-tight">Agro<span className="text-emerald-400">Insight</span></p>
                         <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">AGRI-AI PLATFORM</p>
                     </div>
                 </div>
@@ -96,7 +96,7 @@ const AuthPage = () => {
 
                 {/* Footer */}
                 <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold relative z-10">
-                    © 2026 SmartBiz.Insight • AI Engine v1.0.4
+                    © 2026 AgroInsight • AI Engine v1.0.4
                 </p>
             </div>
 
@@ -114,7 +114,7 @@ const AuthPage = () => {
                             style={{ background: 'var(--emerald-500)', boxShadow: '0 0 16px rgba(16,185,129,0.4)' }}>
                             <Sprout className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-lg font-black text-slate-100">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                        <p className="text-lg font-black text-slate-100">Agro<span className="text-emerald-400">Insight</span></p>
                     </div>
 
                     <div className="mb-8">
