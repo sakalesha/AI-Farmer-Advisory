@@ -3,7 +3,6 @@ import joblib
 import numpy as np
 import os
 import json
-from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
 
@@ -35,13 +34,17 @@ try:
     HISTORY_PATH = os.path.join(BASE_DIR, 'models', 'crop_price_history.json')
     
     if os.path.exists(PRICE_MODEL_PATH):
-        price_model = load_model(PRICE_MODEL_PATH)
-        price_scaler = joblib.load(PRICE_SCALER_PATH)
-        with open(HISTORY_PATH, 'r') as f:
-            price_history = json.load(f)
-        print("✅ LSTM Price model loaded successfully")
+        try:
+            from tensorflow.keras.models import load_model
+            price_model = load_model(PRICE_MODEL_PATH)
+            price_scaler = joblib.load(PRICE_SCALER_PATH)
+            with open(HISTORY_PATH, 'r') as f:
+                price_history = json.load(f)
+            print("✅ LSTM Price model loaded successfully")
+        except Exception as tf_err:
+            print(f"⚠️ TensorFlow load failed (running without LSTM): {tf_err}")
     else:
-        print("⚠️ LSTM Price model not found, train model first")
+        print("⚠️ LSTM Price model not found, using fallback simulation")
 except Exception as e:
     print(f"❌ Error loading model: {e}")
 
