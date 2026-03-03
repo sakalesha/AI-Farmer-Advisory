@@ -15,8 +15,12 @@ import { motion } from 'framer-motion';
 const YieldTrendChart = ({ history }) => {
     if (!history || history.length === 0) {
         return (
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 h-64 flex items-center justify-center">
-                <p className="text-white/60">No historical data available for trends.</p>
+            <div className="card rounded-2xl p-6 h-64 flex flex-col items-center justify-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+                    <LineChart className="w-5 h-5 text-slate-600" />
+                </div>
+                <p className="text-sm font-bold text-slate-500">No yield data yet</p>
+                <p className="text-xs text-slate-600">Run your first analysis to populate this chart</p>
             </div>
         );
     }
@@ -34,16 +38,14 @@ const YieldTrendChart = ({ history }) => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 w-full"
+            className="card p-6 w-full"
         >
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h3 className="text-xl font-bold text-white">Yield Trends</h3>
-                    <p className="text-white/60 text-sm">Historical yield performance (T/Ha)</p>
+                    <h3 className="text-base font-black text-slate-100">Yield Trends</h3>
+                    <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-muted)' }}>Historical yield (T/Ha)</p>
                 </div>
-                <div className="bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
-                    <span className="text-emerald-400 text-xs font-semibold">Live Data</span>
-                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.08)', color: 'var(--emerald-400)', border: '1px solid rgba(16,185,129,0.15)' }}>Live</span>
             </div>
 
             <div className="h-64 w-full">
@@ -55,30 +57,10 @@ const YieldTrendChart = ({ history }) => {
                                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                        <XAxis
-                            dataKey="date"
-                            stroke="#ffffff60"
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                        />
-                        <YAxis
-                            stroke="#ffffff60"
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => `${value}T`}
-                        />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: '#1f2937',
-                                border: '1px solid #ffffff20',
-                                borderRadius: '8px',
-                                color: '#fff'
-                            }}
-                            itemStyle={{ color: '#10b981' }}
-                        />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                        <XAxis dataKey="date" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#475569" fontSize={11} tickLine={false} axisLine={false} tickFormatter={v => `${v}T`} />
+                        <Tooltip contentStyle={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-muted)', borderRadius: '10px', color: 'var(--text-primary)', fontSize: 12 }} itemStyle={{ color: '#34d399' }} />
                         <Area
                             type="monotone"
                             dataKey="yield"

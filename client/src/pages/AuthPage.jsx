@@ -1,186 +1,198 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sprout, LogIn, UserPlus, Mail, Lock, User, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sprout, LogIn, UserPlus, Mail, Lock, User, Loader2, ArrowRight, Leaf, BarChart3, CloudRain } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+
+const features = [
+    { icon: Leaf, label: 'AI Crop Recommendation', desc: 'ML-powered soil analysis across 22 crops' },
+    { icon: BarChart3, label: 'Yield & Profit Analytics', desc: 'Track performance over multiple seasons' },
+    { icon: CloudRain, label: 'Live Weather Sync', desc: 'Auto-fill from your GPS location' },
+];
 
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
-        password: ''
-    });
-
+    const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
     const { login } = useAuth();
     const API_URL = '/api';
 
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError('');
-
+        setLoading(true); setError('');
         try {
             const endpoint = isLogin ? '/auth/login' : '/auth/register';
             const response = await axios.post(`${API_URL}${endpoint}`, formData);
-
             const { token, data } = response.data;
             login(data.user, token);
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-fixed bg-cover bg-center overflow-hidden">
-            {/* Dynamic Background */}
-            <div className="fixed inset-0 -z-10 bg-slate-50">
-                <div className="absolute top-0 left-0 w-full h-full opacity-30 radial-gradient-custom"></div>
-                <div className="absolute inset-0 bg-[radial-gradient(#10b98120_1px,transparent_1px)] [background-size:32px_32px]"></div>
-            </div>
+        <div className="min-h-screen flex" style={{ background: 'var(--bg-base)' }}>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md relative"
-            >
-                {/* Floating Accents */}
-                <div className="absolute -top-12 -left-12 w-32 h-32 bg-emerald-200/40 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-blue-200/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* ── Left Brand Panel ── */}
+            <div className="hidden lg:flex lg:w-[55%] flex-col justify-between p-12 relative overflow-hidden"
+                style={{ background: 'linear-gradient(160deg, #0a1628 0%, #071013 100%)', borderRight: '1px solid var(--border-subtle)' }}>
 
-                <div className="glass-card p-1 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                    {/* Top Branding Section */}
-                    <div className="bg-emerald-950/5 p-8 rounded-t-[2.3rem] text-center space-y-4 border-b border-emerald-500/10">
-                        <motion.div
-                            whileHover={{ rotate: 10, scale: 1.1 }}
-                            className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center mx-auto text-emerald-600 border border-emerald-500/10"
-                        >
-                            <Sprout className="w-8 h-8" />
-                        </motion.div>
-                        <div className="space-y-1">
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">SmartBiz Insight</h1>
-                            <p className="text-sm text-slate-500 font-medium">Empowering Farmers with Precision AI</p>
-                        </div>
+                {/* Decorative orbs */}
+                <div className="absolute top-0 left-0 w-96 h-96 rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', transform: 'translate(-30%, -30%)' }} />
+                <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', transform: 'translate(30%, 30%)' }} />
+
+                {/* Logo */}
+                <div className="flex items-center gap-3 relative z-10">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ background: 'var(--emerald-500)', boxShadow: '0 0 20px rgba(16,185,129,0.4)' }}>
+                        <Sprout className="w-5 h-5 text-white" />
                     </div>
-
-                    <div className="bg-white p-8 md:p-10 rounded-b-[2.3rem]">
-                        {/* Animated Tab Switcher */}
-                        <div className="flex bg-slate-50 p-1.5 rounded-2xl mb-8 border border-slate-200/50">
-                            <button
-                                onClick={() => setIsLogin(true)}
-                                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${isLogin ? 'bg-white text-emerald-600 shadow-md ring-1 ring-slate-200/50' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                <LogIn className="w-4 h-4" /> Login
-                            </button>
-                            <button
-                                onClick={() => setIsLogin(false)}
-                                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${!isLogin ? 'bg-white text-emerald-600 shadow-md ring-1 ring-slate-200/50' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                <UserPlus className="w-4 h-4" /> Signup
-                            </button>
-                        </div>
-
-                        <AnimatePresence mode="wait">
-                            <motion.form
-                                key={isLogin ? 'login' : 'signup'}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                                onSubmit={handleSubmit}
-                                className="space-y-6"
-                            >
-                                {!isLogin && (
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black uppercase text-slate-400 tracking-widest pl-1">Full Name</label>
-                                        <div className="relative group">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-emerald-500 transition-colors" />
-                                            <input
-                                                type="text"
-                                                name="fullName"
-                                                value={formData.fullName}
-                                                onChange={handleInputChange}
-                                                required={!isLogin}
-                                                placeholder="John Doe"
-                                                className="input-glass w-full rounded-2xl p-4 pl-12 font-bold"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest pl-1">Email Address</label>
-                                    <div className="relative group">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-emerald-500 transition-colors" />
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            required
-                                            placeholder="farmer@smartbiz.com"
-                                            className="input-glass w-full rounded-2xl p-4 pl-12 font-bold"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest pl-1">Secret Key</label>
-                                    <div className="relative group">
-                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-emerald-500 transition-colors" />
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            value={formData.password}
-                                            onChange={handleInputChange}
-                                            required
-                                            placeholder="••••••••"
-                                            className="input-glass w-full rounded-2xl p-4 pl-12 font-bold"
-                                        />
-                                    </div>
-                                </div>
-
-                                {error && (
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-xs font-bold leading-relaxed"
-                                    >
-                                        {error}
-                                    </motion.div>
-                                )}
-
-                                <button
-                                    disabled={loading}
-                                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-5 rounded-2xl shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_40px_rgb(16,185,129,0.4)] transition-all flex items-center justify-center gap-3 disabled:opacity-70 group"
-                                >
-                                    {loading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>
-                                            {isLogin ? 'Enter Dashboard' : 'Create My Account'}
-                                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </button>
-                            </motion.form>
-                        </AnimatePresence>
-
-                        <div className="mt-8 flex items-center justify-center gap-2 text-slate-400">
-                            <ShieldCheck className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Secure 256-bit AES Encryption</span>
-                        </div>
+                    <div>
+                        <p className="text-base font-black text-slate-100 tracking-tight">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">AGRI-AI PLATFORM</p>
                     </div>
                 </div>
-            </motion.div>
+
+                {/* Headline */}
+                <div className="space-y-6 relative z-10">
+                    <div>
+                        <h1 className="text-5xl font-black text-slate-100 leading-[1.1] tracking-tight mb-4">
+                            Farm smarter<br />
+                            <span className="text-emerald-400">with AI.</span>
+                        </h1>
+                        <p className="text-slate-400 text-lg font-medium leading-relaxed max-w-md">
+                            Precision crop recommendations, real-time market intelligence, and yield forecasting — all in one platform.
+                        </p>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-4">
+                        {features.map(({ icon: Icon, label, desc }, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 + i * 0.1 }}
+                                className="flex items-center gap-4 p-4 rounded-2xl"
+                                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)' }}
+                            >
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                                    <Icon className="w-4 h-4 text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-200">{label}</p>
+                                    <p className="text-xs text-slate-500">{desc}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold relative z-10">
+                    © 2026 SmartBiz.Insight • AI Engine v1.0.4
+                </p>
+            </div>
+
+            {/* ── Right Form Panel ── */}
+            <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full max-w-md"
+                >
+                    {/* Mobile logo */}
+                    <div className="flex lg:hidden items-center gap-3 mb-8">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                            style={{ background: 'var(--emerald-500)', boxShadow: '0 0 16px rgba(16,185,129,0.4)' }}>
+                            <Sprout className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="text-lg font-black text-slate-100">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                    </div>
+
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-black text-slate-100 tracking-tight">
+                            {isLogin ? 'Welcome back' : 'Create your account'}
+                        </h2>
+                        <p className="text-slate-500 text-sm mt-1">
+                            {isLogin ? 'Sign in to your farm dashboard.' : 'Start your AI-powered farming journey.'}
+                        </p>
+                    </div>
+
+                    {/* Tab switcher */}
+                    <div className="flex p-1 rounded-xl mb-8 gap-1" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+                        {[{ val: true, label: 'Sign In', Icon: LogIn }, { val: false, label: 'Sign Up', Icon: UserPlus }].map(({ val, label, Icon }) => (
+                            <button key={label} onClick={() => setIsLogin(val)}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${isLogin === val ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+                                style={isLogin === val ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } : {}}>
+                                <Icon className="w-4 h-4" />{label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                        <motion.form
+                            key={isLogin ? 'login' : 'signup'}
+                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.2 }}
+                            onSubmit={handleSubmit}
+                            className="space-y-4"
+                        >
+                            {!isLogin && (
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Full Name</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                                        <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange}
+                                            required={!isLogin} placeholder="John Doe"
+                                            className="input-glass pl-10" />
+                                    </div>
+                                </div>
+                            )}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Email</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                        required placeholder="farmer@example.com"
+                                        className="input-glass pl-10" />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                                    <input type="password" name="password" value={formData.password} onChange={handleInputChange}
+                                        required placeholder="••••••••"
+                                        className="input-glass pl-10" />
+                                </div>
+                            </div>
+
+                            {error && (
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                    className="text-rose-400 text-xs font-semibold px-4 py-3 rounded-xl"
+                                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                                    {error}
+                                </motion.p>
+                            )}
+
+                            <button type="submit" disabled={loading}
+                                className="btn-primary w-full py-4 rounded-xl text-sm mt-2">
+                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                                    <>{isLogin ? 'Enter Dashboard' : 'Create Account'} <ArrowRight className="w-4 h-4" /></>
+                                )}
+                            </button>
+                        </motion.form>
+                    </AnimatePresence>
+                </motion.div>
+            </div>
         </div>
     );
 };

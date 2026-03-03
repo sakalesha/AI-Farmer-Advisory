@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { TrendingUp, TrendingDown, Minus, RefreshCw, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, RefreshCw, AlertCircle, Wifi } from 'lucide-react';
 
 const API_URL = '/api';
 
@@ -14,8 +14,7 @@ const MarketPrices = () => {
     const [lastSync, setLastSync] = useState(null);
 
     const fetchPrices = async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true); setError(null);
         try {
             const response = await axios.get(`${API_URL}/market/prices/all`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -24,134 +23,115 @@ const MarketPrices = () => {
                 setPrices(response.data.data);
                 setLastSync(new Date());
             } else {
-                setError('Failed to load market prices.');
+                setError('Failed to load market data.');
             }
         } catch (err) {
             console.error('Error fetching market prices:', err);
             setError('Unable to connect to market service. Please try again later.');
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        fetchPrices();
-    }, [token]);
+    useEffect(() => { fetchPrices(); }, [token]);
 
-    const getTrendIcon = (trend) => {
-        switch (trend) {
-            case 'Up': return <TrendingUp className="w-5 h-5 text-emerald-500" />;
-            case 'Down': return <TrendingDown className="w-5 h-5 text-rose-500" />;
-            default: return <Minus className="w-5 h-5 text-slate-400" />;
-        }
-    };
-
-    const getTrendColor = (trend) => {
-        switch (trend) {
-            case 'Up': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-            case 'Down': return 'bg-rose-50 text-rose-700 border-rose-200';
-            default: return 'bg-slate-50 text-slate-600 border-slate-200';
-        }
+    const trendConfig = {
+        Up: { icon: TrendingUp, color: '#34d399', bg: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.2)', accent: 'rgba(52,211,153,1)', label: 'Up', cls: 'trend-up' },
+        Down: { icon: TrendingDown, color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)', accent: 'rgba(248,113,113,1)', label: 'Down', cls: 'trend-down' },
+        Stable: { icon: Minus, color: '#94a3b8', bg: 'rgba(148,163,184,0.06)', border: 'rgba(148,163,184,0.1)', accent: 'rgba(148,163,184,1)', label: 'Stable', cls: 'trend-flat' },
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-        >
-            <div className="flex justify-between items-center glass-card p-6 rounded-[2rem] bg-gradient-to-r from-emerald-900 via-emerald-800 to-indigo-900 shadow-xl relative overflow-hidden">
-                {/* Decorative background blobs */}
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500 rounded-full blur-[80px] opacity-20" />
-                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500 rounded-full blur-[80px] opacity-20" />
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
 
-                <div className="relative z-10 text-white">
-                    <h2 className="text-3xl font-black tracking-tight mb-2 flex items-center gap-3">
-                        Live Market Intelligence
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-widest font-bold">Real-time Data.gov</span>
-                    </h2>
-                    <p className="text-emerald-100/70 text-sm font-medium">Monitoring all supported commodities across national mandis via Agmarknet.</p>
-                </div>
-
-                <button
-                    onClick={fetchPrices}
-                    disabled={loading}
-                    className="relative z-10 flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-all border border-white/20 px-6 py-3 rounded-2xl text-white font-bold text-sm tracking-wide disabled:opacity-50"
-                >
-                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                    {loading ? 'Syncing...' : 'Sync Prices'}
-                </button>
-            </div>
-
-            {error && (
-                <div className="bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-3xl flex items-center gap-4">
-                    <div className="bg-rose-100 p-2 rounded-full">
-                        <AlertCircle className="w-5 h-5" />
-                    </div>
-                    <p className="font-bold text-sm tracking-tight">{error}</p>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading && prices.length === 0 ? (
-                    // Skeleton Loaders
-                    [...Array(6)].map((_, i) => (
-                        <div key={i} className="glass-card p-6 rounded-[2rem] h-48 animate-pulse flex flex-col justify-between">
-                            <div className="flex justify-between items-start">
-                                <div className="h-6 w-24 bg-slate-200 rounded-md" />
-                                <div className="h-8 w-8 bg-slate-200 rounded-full" />
-                            </div>
-                            <div>
-                                <div className="h-4 w-16 bg-slate-200 rounded-md mb-2" />
-                                <div className="h-8 w-32 bg-slate-200 rounded-md" />
-                            </div>
+            {/* Hero header */}
+            <div className="card overflow-hidden relative">
+                <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(16,185,129,0.07) 0%, transparent 60%)' }} />
+                <div className="relative z-10 flex items-center justify-between p-6 flex-wrap gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-1">
+                            <span className="live-dot" />
+                            <h2 className="text-lg font-black text-slate-100 tracking-tight">Live Market Intelligence</h2>
+                            <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
+                                style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--emerald-400)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                                Data.gov.in
+                            </span>
                         </div>
-                    ))
-                ) : (
-                    prices.map((item, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="glass-card p-6 rounded-[2rem] hover:shadow-xl transition-all hover:-translate-y-1 relative group bg-white hover:bg-slate-50 border border-slate-100"
-                        >
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800 capitalize tracking-tight">{item.crop}</h3>
-                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border mt-2 inline-block ${getTrendColor(item.trend)}`}>
-                                        {item.trend} Trend
-                                    </span>
-                                </div>
-                                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
-                                    {getTrendIcon(item.trend)}
-                                </div>
-                            </div>
-
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Live Reference Price</p>
-                                <div className="flex items-end gap-2">
-                                    <h4 className="text-3xl font-black text-slate-900 tracking-tighter">
-                                        ${item.current_price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </h4>
-                                    <span className="text-sm font-bold text-slate-500 mb-1">/ Ton</span>
-                                </div>
-                                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
-                                    <span className="text-xs font-medium text-slate-500">Predicted AI Forecast:</span>
-                                    <span className="text-xs font-black text-slate-700">${item.predicted_price.toFixed(2)} / Ton</span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))
-                )}
+                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                            {lastSync ? `Last synced: ${lastSync.toLocaleTimeString()}` : 'Fetching commodity prices from Agmarknet…'}
+                        </p>
+                    </div>
+                    <button onClick={fetchPrices} disabled={loading}
+                        className="btn-ghost text-xs px-4 py-2 flex items-center gap-2">
+                        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                        {loading ? 'Syncing...' : 'Refresh'}
+                    </button>
+                </div>
             </div>
 
-            {!loading && lastSync && (
-                <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mt-8">
-                    Last synchronised: {lastSync.toLocaleTimeString()}
-                </p>
+            {/* Error */}
+            {error && (
+                <div className="flex items-center gap-3 px-5 py-4 rounded-2xl text-rose-400 text-sm font-semibold"
+                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {error}
+                </div>
             )}
+
+            {/* Price Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {loading && prices.length === 0
+                    ? [...Array(9)].map((_, i) => (
+                        <div key={i} className="rounded-2xl p-5 h-36 skeleton" style={{ background: 'var(--bg-surface)' }} />
+                    ))
+                    : prices.map((item, index) => {
+                        const cfg = trendConfig[item.trend] || trendConfig.Stable;
+                        const TrendIcon = cfg.icon;
+                        return (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.03 }}
+                                className="rounded-2xl p-5 relative overflow-hidden group cursor-default"
+                                style={{
+                                    background: 'var(--bg-surface)',
+                                    border: `1px solid var(--border-subtle)`,
+                                    borderLeft: `3px solid ${cfg.accent}`,
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                }}
+                                whileHover={{ y: -2 }}
+                            >
+                                {/* Subtle glow on hover */}
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
+                                    style={{ background: `radial-gradient(ellipse at top right, ${cfg.bg}, transparent 70%)` }} />
+
+                                <div className="relative z-10 flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-base font-black text-slate-100 capitalize tracking-tight">{item.crop}</h3>
+                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mt-1.5 inline-flex items-center gap-1 ${cfg.cls}`}>
+                                            <TrendIcon className="w-2.5 h-2.5" /> {cfg.label}
+                                        </span>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                                        style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                                        <TrendIcon className="w-4 h-4" style={{ color: cfg.color }} />
+                                    </div>
+                                </div>
+
+                                <div className="relative z-10 mt-4">
+                                    <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)' }}>Live Reference Price</p>
+                                    <div className="flex items-end gap-1">
+                                        <span className="text-2xl font-black text-slate-100 tracking-tighter">
+                                            ${item.current_price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </span>
+                                        <span className="text-xs font-bold mb-0.5" style={{ color: 'var(--text-muted)' }}>/Ton</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })
+                }
+            </div>
         </motion.div>
     );
 };

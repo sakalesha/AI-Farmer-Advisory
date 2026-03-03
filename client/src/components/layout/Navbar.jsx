@@ -1,48 +1,100 @@
 import React from 'react';
-import { Sprout, Activity, User as UserIcon, LogOut } from 'lucide-react';
+import { Sprout, LayoutDashboard, BarChart3, LineChart, LogOut, User as UserIcon, Activity } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const Navbar = ({ user, logout }) => {
+const navItems = [
+    { id: 'dashboard', label: 'Advisory', icon: LayoutDashboard },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'market', label: 'Live Market', icon: LineChart },
+];
+
+const Navbar = ({ user, logout, view, setView }) => {
     return (
-        <nav className="sticky top-0 z-50 glass-card border-b border-emerald-500/10 py-4 px-6 mb-8">
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-emerald-600 rounded-xl shadow-lg shadow-emerald-200">
-                        <Sprout className="text-white w-6 h-6" />
+        <>
+            {/* ── Desktop Sidebar ── */}
+            <aside className="sidebar">
+                {/* Logo */}
+                <div className="flex items-center gap-3 px-2 mb-8">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg" style={{ boxShadow: '0 0 16px rgba(16,185,129,0.4)' }}>
+                        <Sprout className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none uppercase">
-                            SmartBiz<span className="text-emerald-600">.</span>Insight
-                        </h1>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AGRI-AI PLATFORM</p>
+                        <p className="text-sm font-black text-slate-100 tracking-tight leading-none">SmartBiz<span className="text-emerald-400">.</span>Insight</p>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">AGRI-AI PLATFORM</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex items-center gap-4 mr-4">
-                        <span className="flex items-center gap-2 text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 uppercase tracking-widest">
-                            <Activity className="w-3 h-3" /> System Live
-                        </span>
-                    </div>
 
-                    <div className="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
+                {/* Live indicator */}
+                <div className="flex items-center gap-2 px-3 py-2 mb-6 bg-emerald-500/8 rounded-xl border border-emerald-500/15">
+                    <span className="live-dot" />
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">System Live</span>
+                </div>
 
-                    <div className="flex items-center gap-3 pl-2">
-                        <div className="text-right hidden sm:block">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter leading-none mb-1">Welcome back,</p>
-                            <p className="text-xs font-black text-slate-800 tracking-tight leading-none">{user.fullName}</p>
+                {/* Navigation */}
+                <nav className="flex flex-col gap-1 flex-1">
+                    {navItems.map(({ id, label, icon: Icon }) => (
+                        <button
+                            key={id}
+                            onClick={() => setView(id)}
+                            className={`sidebar-nav-item ${view === id ? 'active' : ''}`}
+                        >
+                            <Icon className="w-4 h-4 shrink-0" />
+                            {label}
+                            {view === id && (
+                                <motion.div
+                                    layoutId="nav-pill"
+                                    className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400"
+                                />
+                            )}
+                        </button>
+                    ))}
+                </nav>
+
+                {/* User section */}
+                <div className="mt-auto border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-[var(--bg-hover)] transition-colors group">
+                        <div className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center">
+                            <UserIcon className="w-4 h-4 text-slate-400" />
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 group relative">
-                            <UserIcon className="w-5 h-5" />
-                            <button
-                                onClick={logout}
-                                className="absolute -bottom-12 right-0 bg-white border border-slate-200 shadow-xl rounded-xl px-4 py-2 text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all"
-                            >
-                                <LogOut className="w-3 h-3" /> Sign Out
-                            </button>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-slate-200 truncate">{user?.fullName}</p>
+                            <p className="text-[9px] text-slate-500 font-medium uppercase tracking-wider">Farmer Account</p>
                         </div>
+                        <button
+                            onClick={logout}
+                            title="Sign out"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                            <LogOut className="w-3.5 h-3.5" />
+                        </button>
                     </div>
                 </div>
-            </div>
-        </nav>
+            </aside>
+
+            {/* ── Mobile Bottom Nav ── */}
+            <nav className="bottom-nav justify-around">
+                {navItems.map(({ id, label, icon: Icon }) => (
+                    <button
+                        key={id}
+                        onClick={() => setView(id)}
+                        className={`flex flex-col items-center gap-1 py-2 px-4 rounded-xl transition-all text-[10px] font-bold uppercase tracking-wider ${view === id
+                                ? 'text-emerald-400'
+                                : 'text-slate-500'
+                            }`}
+                    >
+                        <Icon className={`w-5 h-5 ${view === id ? 'text-emerald-400' : 'text-slate-500'}`} />
+                        {label}
+                    </button>
+                ))}
+                <button
+                    onClick={logout}
+                    className="flex flex-col items-center gap-1 py-2 px-4 rounded-xl text-slate-500 text-[10px] font-bold uppercase tracking-wider"
+                >
+                    <LogOut className="w-5 h-5" />
+                    Sign Out
+                </button>
+            </nav>
+        </>
     );
 };
 

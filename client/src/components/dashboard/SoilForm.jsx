@@ -1,135 +1,95 @@
 import React from 'react';
-import { Activity, Loader2, CloudRain, Beaker, Thermometer, Wind, ShieldCheck } from 'lucide-react';
+import { Activity, Loader2, CloudRain, Beaker, Thermometer, Wind, ShieldCheck, Zap } from 'lucide-react';
 import NutrientBar from '../ui/NutrientBar';
 
-const SoilForm = ({
-    formData,
-    handleInputChange,
-    handleSubmit,
-    handleSyncWeather,
-    loading,
-    weatherLoading
-}) => {
+const SoilForm = ({ formData, handleInputChange, handleSubmit, handleSyncWeather, loading, weatherLoading }) => {
+    const environmentFields = [
+        { name: 'ph', label: 'pH Level', placeholder: '6.5', Icon: Beaker, color: 'bg-indigo-500', max: 14, iconColor: '#6366f1' },
+        { name: 'temperature', label: 'Temp (°C)', placeholder: '28.4', Icon: Thermometer, color: 'bg-orange-500', max: 50, iconColor: '#f97316' },
+        { name: 'humidity', label: 'Humidity (%)', placeholder: '82', Icon: Wind, color: 'bg-blue-500', max: 100, iconColor: '#3b82f6' },
+        { name: 'rainfall', label: 'Rainfall (mm)', placeholder: '202', Icon: CloudRain, color: 'bg-emerald-500', max: 300, iconColor: '#10b981' },
+    ];
+
+    const nutrientFields = [
+        { name: 'N', label: 'Nitrogen (N)', colorClass: 'bg-blue-500', max: 140 },
+        { name: 'P', label: 'Phosphorus (P)', colorClass: 'bg-emerald-500', max: 145 },
+        { name: 'K', label: 'Potassium (K)', colorClass: 'bg-purple-500', max: 205 },
+    ];
+
     return (
-        <div className="bg-white p-8 md:p-12 rounded-[2.3rem] shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-10">
-                <div className="text-center md:text-left">
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                        <Activity className="text-emerald-500 w-8 h-8" />
-                        Soil Vitality Analysis
-                    </h2>
-                    <p className="text-slate-400 font-medium mt-1">Enter your parameters for real-time AI cross-referencing.</p>
+        <div className="card overflow-hidden">
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6 flex flex-col sm:flex-row justify-between items-start gap-4"
+                style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <div>
+                    <div className="flex items-center gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                            style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                            <Activity className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        <h2 className="text-lg font-black text-slate-100 tracking-tight">Soil Vitality Analysis</h2>
+                    </div>
+                    <p className="text-xs font-medium ml-11" style={{ color: 'var(--text-muted)' }}>Enter your field parameters for AI cross-referencing.</p>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={handleSyncWeather}
-                    disabled={weatherLoading}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100 font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition-all disabled:opacity-50"
-                >
-                    {weatherLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                        <CloudRain className="w-4 h-4" />
-                    )}
-                    {weatherLoading ? 'Syncing...' : 'Sync Live Weather'}
+                <button type="button" onClick={handleSyncWeather} disabled={weatherLoading}
+                    className="btn-ghost text-xs px-4 py-2.5 shrink-0"
+                    style={{ fontSize: '0.75rem' }}>
+                    {weatherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudRain className="w-3.5 h-3.5" />}
+                    {weatherLoading ? 'Syncing...' : 'Sync Weather'}
                 </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="space-y-4">
-                        <NutrientBar label="Nitrogen (N)" value={formData.N || 0} max={140} colorClass="bg-blue-500" />
-                        <input type="number" name="N" placeholder="N Value" value={formData.N} onChange={handleInputChange} required className="input-glass w-full rounded-2xl p-4 font-bold" />
-                    </div>
-                    <div className="space-y-4">
-                        <NutrientBar label="Phosphorus (P)" value={formData.P || 0} max={145} colorClass="bg-emerald-500" />
-                        <input type="number" name="P" placeholder="P Value" value={formData.P} onChange={handleInputChange} required className="input-glass w-full rounded-2xl p-4 font-bold" />
-                    </div>
-                    <div className="space-y-4">
-                        <NutrientBar label="Potassium (K)" value={formData.K || 0} max={205} colorClass="bg-purple-500" />
-                        <input type="number" name="K" placeholder="K Value" value={formData.K} onChange={handleInputChange} required className="input-glass w-full rounded-2xl p-4 font-bold" />
-                    </div>
-                </div>
-
-                <div className="h-[1px] w-full bg-slate-100"></div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">pH Level</label>
-                            <NutrientBar label="" value={formData.ph || 0} max={14} colorClass="bg-indigo-500" />
-                        </div>
-                        <div className="relative">
-                            <Beaker className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 w-4 h-4" />
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                name="ph"
-                                value={formData.ph}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="6.5"
-                                className="input-glass w-full rounded-xl p-4 pl-12 font-bold"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Temp (°C)</label>
-                            <NutrientBar label="" value={formData.temperature || 0} max={50} colorClass="bg-orange-500" />
-                        </div>
-                        <div className="relative">
-                            <Thermometer className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 w-4 h-4" />
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                name="temperature"
-                                value={formData.temperature}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="28.4"
-                                className="input-glass w-full rounded-xl p-4 pl-12 font-bold"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Humidity (%)</label>
-                            <NutrientBar label="" value={formData.humidity || 0} max={100} colorClass="bg-blue-500" />
-                        </div>
-                        <div className="relative">
-                            <Wind className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4" />
-                            <input type="number" name="humidity" value={formData.humidity} onChange={handleInputChange} required placeholder="82" className="input-glass w-full rounded-xl p-4 pl-12 font-bold" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Rainfall (mm)</label>
-                            <NutrientBar label="" value={formData.rainfall || 0} max={300} colorClass="bg-emerald-500" />
-                        </div>
-                        <div className="relative">
-                            <CloudRain className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 w-4 h-4" />
-                            <input type="number" name="rainfall" value={formData.rainfall} onChange={handleInputChange} required placeholder="202" className="input-glass w-full rounded-xl p-4 pl-12 font-bold" />
-                        </div>
+            <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                {/* Nutrients section */}
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
+                        NPK Nutrients
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {nutrientFields.map(({ name, label, colorClass, max }) => (
+                            <div key={name} className="space-y-3">
+                                <NutrientBar label={label} value={formData[name] || 0} max={max} colorClass={colorClass} />
+                                <input type="number" name={name} placeholder={`${name} Value`}
+                                    value={formData[name]} onChange={handleInputChange} required
+                                    className="input-glass text-sm" />
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg py-5 rounded-[1.5rem] shadow-2xl shadow-emerald-200 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 disabled:opacity-70 disabled:grayscale"
-                >
+                <div style={{ height: '1px', background: 'var(--border-subtle)' }} />
+
+                {/* Environmental section */}
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
+                        Environmental Conditions
+                    </p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {environmentFields.map(({ name, label, placeholder, Icon, color, max, iconColor }) => (
+                            <div key={name} className="space-y-2">
+                                <NutrientBar label="" value={formData[name] || 0} max={max} colorClass={color} />
+                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</label>
+                                <div className="relative">
+                                    <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: iconColor }} />
+                                    <input type="text" inputMode="decimal" name={name}
+                                        value={formData[name]} onChange={handleInputChange} required
+                                        placeholder={placeholder}
+                                        className="input-glass text-sm pl-9" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Submit */}
+                <button type="submit" disabled={loading}
+                    className="btn-primary w-full py-4 rounded-xl text-sm font-black tracking-wide"
+                    style={{ fontSize: '0.875rem', letterSpacing: '0.05em' }}>
                     {loading ? (
-                        <>
-                            <Loader2 className="animate-spin" />
-                            <span className="animate-pulse">PROCESSING AI MODEL...</span>
-                        </>
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Processing AI Model...</>
                     ) : (
-                        <>
-                            <ShieldCheck className="w-6 h-6" />
-                            RUN PREDICTIVE ENGINE
-                        </>
+                        <><Zap className="w-4 h-4" /> Run Predictive Engine</>
                     )}
                 </button>
             </form>
