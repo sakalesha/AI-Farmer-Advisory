@@ -42,9 +42,14 @@ const Dashboard = () => {
             const response = await axios.get(`${API_URL}/history`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setHistory(response.data);
+            if (Array.isArray(response.data)) {
+                setHistory(response.data);
+            } else {
+                setHistory([]);
+            }
         } catch (err) {
             console.error('Failed to fetch history:', err);
+            setHistory([]);
         }
     };
 
