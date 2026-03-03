@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import joblib
 import numpy as np
 import os
+import json
+from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
 
@@ -10,6 +12,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'crop_model.pkl')
 SCALER_PATH = os.path.join(BASE_DIR, 'models', 'scaler.pkl')
 ENCODER_PATH = os.path.join(BASE_DIR, 'models', 'label_encoder.pkl')
+
+price_model = None
+price_scaler = None
+price_history = {}
 
 try:
     model = joblib.load(MODEL_PATH)
@@ -23,6 +29,19 @@ try:
     yield_model = joblib.load(YIELD_MODEL_PATH)
     yield_label_encoder = joblib.load(YIELD_ENCODER_PATH)
     print("✅ Yield models loaded successfully")
+    
+    PRICE_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'lstm_price_model.h5')
+    PRICE_SCALER_PATH = os.path.join(BASE_DIR, 'models', 'price_scaler.pkl')
+    HISTORY_PATH = os.path.join(BASE_DIR, 'models', 'crop_price_history.json')
+    
+    if os.path.exists(PRICE_MODEL_PATH):
+        price_model = load_model(PRICE_MODEL_PATH)
+        price_scaler = joblib.load(PRICE_SCALER_PATH)
+        with open(HISTORY_PATH, 'r') as f:
+            price_history = json.load(f)
+        print("✅ LSTM Price model loaded successfully")
+    else:
+        print("⚠️ LSTM Price model not found, train model first")
 except Exception as e:
     print(f"❌ Error loading model: {e}")
 
@@ -83,6 +102,61 @@ def predict_yield():
         return jsonify({
             'status': 'success',
             'yield': round(predicted_yield, 2)
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 400
+
+from price_scraper import fetch_realtime_price
+
+@app.route('/api/predict_price_trend', methods=['POST'])
+def predict_price_trend():
+    try:
+        data = request.json
+        crop_name = data.get('crop', '').lower()
+        
+        # 1. Get Live Price
+        live_price = fetch_realtime_price(crop_name)
+        
+        if not os.path.exists(PRICE_MODEL_PATH) or crop_name not in price_history:
+             # Fallback if model not trained
+             trend = "Stable"
+             return jsonify({
+                 'status': 'success',
+                 'current_price': live_price,
+                 'predicted_price': live_price,
+                 'trend': trend
+             })
+
+        # 2. Prepare Sequence (last 4 months + today's live price = length 5)
+        history_sequence = price_history[crop_name]
+        # Drop the oldest, add Live as the most recent
+        current_sequence = history_sequence[1:] + [live_price]
+        
+        # 3. Scale Data
+        seq_array = np.array(current_sequence).reshape(-1, 1)
+        scaled_seq = price_scaler.transform(seq_array)
+        
+        # 4. Predict
+        lstm_input = scaled_seq.reshape((1, 5, 1))
+        scaled_prediction = price_model.predict(lstm_input)
+        
+        # 5. Inverse Transform
+        predicted_price = price_scaler.inverse_transform(scaled_prediction)[0][0]
+        
+        # Determine trend
+        if predicted_price > live_price * 1.02:
+            trend = "Up"
+        elif predicted_price < live_price * 0.98:
+            trend = "Down"
+        else:
+            trend = "Stable"
+            
+        return jsonify({
+            'status': 'success',
+            'current_price': float(round(live_price, 2)),
+            'predicted_price': float(round(predicted_price, 2)),
+            'trend': trend
         })
 
     except Exception as e:

@@ -324,11 +324,6 @@ Beyond the current Phase 2 advisory features, the project is structured to scale
 - **Artifact Generation:** Saved the trained model (`yield_model.pkl`) and label encoder (`yield_label_encoder.pkl`) to the `ml/models/` directory for production deployment.
 - **Project Organization:** Removed the deprecated `train_yield_model.py` and consolidated all machine learning experimentation cleanly within the `notebooks` directory.
 
-### Next Step:
-→ **Integration:** Update the MERN backend (`server/controllers/recommendController.js`) to consume predictions from the newly generated `yield_model.pkl` microservice endpoint instead of relying on static heuristics.
-
----
-
 ## ✅ Step 22 — Yield Model Backend Integration
 **Date:** 2026-03-03
 **Phase:** Phase 4 · Machine Learning Evolution
@@ -341,3 +336,19 @@ Beyond the current Phase 2 advisory features, the project is structured to scale
 
 ### Next Step:
 → **Phase 4 Continued:** Explore integrating **LSTM Price Forecasting** for market trends, or **Computer Vision (YOLO)** for Pest/Disease detection as outlined in the roadmap.
+
+---
+
+## ✅ Step 23 — LSTM Price Forecasting Integration
+**Date:** 2026-03-03
+**Phase:** Phase 4 · Machine Learning Evolution
+
+### What We Did:
+- **Notebook Development:** Created and executed `notebooks/train_price_lstm.ipynb` to synthesize 5 years of historical price data for 22 crops and train a Keras LSTM time-series model.
+- **Python Scraper:** Built `ml/price_scraper.py` using BeautifulSoup to simulate fetching real-time market prices, with a fallback to static prices.
+- **Microservice Update:** Added a new `/api/predict_price_trend` endpoint to `ml/app.py` that combines the live scraped price with historical data sequences to run LSTM inference.
+- **Node.js Integration:** Updated `server/controllers/recommendController.js` to call the ML service for price trends instead of relying on random heuristics, storing the actual predicted price and trend.
+- **Frontend Update:** Upgraded the React Dashboard's `RecommendationResult` component to display the live price versus the LSTM predicted price, along with the trend analysis.
+
+### Next Step:
+→ **Phase 4 Continued:** Explore integrating **Computer Vision (YOLO)** for Pest/Disease detection or move on to **Phase 5 (IoT Integration)**.

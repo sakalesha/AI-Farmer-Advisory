@@ -56,13 +56,27 @@ exports.getRecommendation = async (req, res) => {
             console.error('⚠️ Yield Prediction Error (falling back to default):', yieldError.message);
         }
 
-        // 3. Market Analysis & Profitability
-        const pricePerTon = marketPrices[crop.toLowerCase()] || 500;
-        const estimatedRevenue = estimatedYield * pricePerTon;
+        // 3. Market Analysis & LSTM Profitability Forecast
+        const PRICE_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict_price_trend`;
+        let pricePerTon = marketPrices[crop.toLowerCase()] || 500;
+        let predictedPrice = pricePerTon;
+        let marketTrend = "Stable";
 
-        // Simulate a market trend (-5% to +15% volatility)
-        const trendValue = (Math.random() * 20) - 5;
-        const marketTrend = trendValue > 2 ? 'Up' : trendValue < -2 ? 'Down' : 'Stable';
+        try {
+            const priceResponse = await axios.post(PRICE_URL, { crop });
+            if (priceResponse.data && priceResponse.data.status === 'success') {
+                pricePerTon = priceResponse.data.current_price;
+                predictedPrice = priceResponse.data.predicted_price;
+                marketTrend = priceResponse.data.trend;
+            }
+        } catch (priceError) {
+            console.error('⚠️ Price Prediction Error (falling back to static):', priceError.message);
+            // Fallback trend simulation
+            const trendValue = (Math.random() * 20) - 5;
+            marketTrend = trendValue > 2 ? 'Up' : trendValue < -2 ? 'Down' : 'Stable';
+        }
+
+        const estimatedRevenue = estimatedYield * predictedPrice;
 
         const newRecord = new Recommendation({
             user: req.user._id,
@@ -87,6 +101,7 @@ exports.getRecommendation = async (req, res) => {
             yield: estimatedYield.toFixed(2),
             market: {
                 pricePerTon,
+                predictedPrice,
                 estimatedRevenue: Math.round(estimatedRevenue),
                 trend: marketTrend
             },

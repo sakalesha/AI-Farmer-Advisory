@@ -70,10 +70,15 @@ const RecommendationResult = ({ result, setResult }) => {
                     {(result.market || result.prediction?.marketPrice) && (
                         <>
                             <div className="space-y-4 flex flex-col items-center">
-                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center truncate w-full">Market Value</p>
-                                <div className="w-full max-w-[200px] px-6 py-4 rounded-3xl font-black text-lg flex items-center justify-center gap-3 bg-purple-600 text-white shadow-xl shadow-purple-100 relative">
-                                    <Zap className="w-5 h-5 shrink-0" />
-                                    ${result.market?.pricePerTon || result.prediction?.marketPrice}
+                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center truncate w-full">LSTM Market Forecast</p>
+                                <div className="w-full max-w-[200px] px-6 py-4 rounded-3xl font-black text-sm flex flex-col items-center justify-center gap-1 bg-purple-600 text-white shadow-xl shadow-purple-100 relative">
+                                    <div className="flex items-center gap-2">
+                                        <Zap className="w-4 h-4 shrink-0 text-purple-200" />
+                                        <span className="text-purple-200 line-through text-xs">${result.market?.pricePerTon || result.prediction?.marketPrice}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-lg">
+                                        ${result.market?.predictedPrice || result.prediction?.marketPrice || result.market?.pricePerTon}
+                                    </div>
                                     <div className={cn(
                                         "absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center border-2 border-white text-white text-[10px] font-black shadow-sm",
                                         (result.market?.trend || result.prediction?.marketTrend) === 'Up' ? "bg-emerald-500" : (result.market?.trend || result.prediction?.marketTrend) === 'Down' ? "bg-rose-500" : "bg-slate-400"

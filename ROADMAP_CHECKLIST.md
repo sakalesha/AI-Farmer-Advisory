@@ -146,7 +146,7 @@ These are explicitly **out of scope** for now:
 
 ### Phase 4 · Machine Learning Evolution
 - [x] Train **Real Yield Regression Model** (beyond heuristic)
-- [ ] Integrate **LSTM Price Forecasting** for market trends
+- [x] Integrate **LSTM Price Forecasting** for market trends
 - [ ] Implement **Computer Vision (YOLO)** for Pest/Disease detection
 
 ### Phase 5 · Ecosystem Integration & IoT
