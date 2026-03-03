@@ -145,7 +145,7 @@ These are explicitly **out of scope** for now:
 - [x] Build **Sector Comparison Engine** (Split-field analysis)
 
 ### Phase 4 · Machine Learning Evolution
-- [ ] Train **Real Yield Regression Model** (beyond heuristic)
+- [x] Train **Real Yield Regression Model** (beyond heuristic)
 - [ ] Integrate **LSTM Price Forecasting** for market trends
 - [ ] Implement **Computer Vision (YOLO)** for Pest/Disease detection
 

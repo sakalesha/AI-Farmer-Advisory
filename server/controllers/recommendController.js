@@ -1,7 +1,6 @@
 const axios = require('axios');
 const Recommendation = require('../models/Recommendation');
 const cropRequirements = require('../data/cropRequirements');
-const yieldData = require('../data/yieldData');
 const marketPrices = require('../data/marketPrices');
 
 exports.getRecommendation = async (req, res) => {
@@ -42,20 +41,19 @@ exports.getRecommendation = async (req, res) => {
             fertilizerAdvice = { summary: ["General NPK balanced fertilizer recommended."] };
         }
 
-        // 2. Calculate Yield Prediction (Heuristic Engine)
-        const baseYield = yieldData[crop.toLowerCase()] || 2.0;
-        let estimatedYield = baseYield;
+        // 2. Fetch ML Yield Prediction
+        const YIELD_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict_yield`;
+        let estimatedYield = 2.0; // fallback default
 
-        if (requirements) {
-            // Factor: How close are we to optimal nutrition?
-            const nFactor = Math.min(N / requirements.N, 1.1); // Slight boost for over-fertilizing but diminishing returns
-            const pFactor = Math.min(P / requirements.P, 1.1);
-            const kFactor = Math.min(K / requirements.K, 1.1);
-
-            const nutrientScore = (nFactor + pFactor + kFactor) / 3;
-
-            // Yield is base modified by nutrition (70% base guaranteed + 30% nutrition weight)
-            estimatedYield = baseYield * (0.7 + (0.3 * nutrientScore));
+        try {
+            const yieldResponse = await axios.post(YIELD_URL, {
+                crop, N, P, K, temperature, humidity, ph, rainfall
+            });
+            if (yieldResponse.data && yieldResponse.data.yield) {
+                estimatedYield = yieldResponse.data.yield;
+            }
+        } catch (yieldError) {
+            console.error('⚠️ Yield Prediction Error (falling back to default):', yieldError.message);
         }
 
         // 3. Market Analysis & Profitability

@@ -311,5 +311,18 @@ Beyond the current Phase 2 advisory features, the project is structured to scale
 - Live hardware integration with soil nutrient sensors (IoT).
 - Satellite NDVI health indexing for regional farm monitoring.
 
+---
 
+## ✅ Step 21 — Real Yield Regression Model
+**Date:** 2026-03-03
+**Phase:** Phase 4 · Machine Learning Evolution
 
+### What We Did:
+- **Notebook Development:** Created and executed a new Jupyter Notebook (`notebooks/train_yield_model.ipynb`) to train our yield prediction model.
+- **Model Training:** Successfully graduated from heuristic yield estimation by training a **Random Forest Regressor** on the synthetic dataset, using 8 features (N, P, K, pH, rainfall, temperature, humidity, and crop type).
+- **Evaluation:** Achieved high precision with an R-squared score of 0.9973 and a Root Mean Squared Error (RMSE) of 0.6288 T/Ha.
+- **Artifact Generation:** Saved the trained model (`yield_model.pkl`) and label encoder (`yield_label_encoder.pkl`) to the `ml/models/` directory for production deployment.
+- **Project Organization:** Removed the deprecated `train_yield_model.py` and consolidated all machine learning experimentation cleanly within the `notebooks` directory.
+
+### Next Step:
+→ **Integration:** Update the MERN backend (`server/controllers/recommendController.js`) to consume predictions from the newly generated `yield_model.pkl` microservice endpoint instead of relying on static heuristics.
