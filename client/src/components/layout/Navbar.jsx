@@ -1,6 +1,7 @@
 import React from 'react';
-import { Sprout, LayoutDashboard, BarChart3, LineChart, LogOut, User as UserIcon, Activity } from 'lucide-react';
+import { Sprout, LayoutDashboard, BarChart3, LineChart, LogOut, User as UserIcon, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../context/ThemeContext';
 
 const navItems = [
     { id: 'dashboard', label: 'Advisory', icon: LayoutDashboard },
@@ -9,6 +10,7 @@ const navItems = [
 ];
 
 const Navbar = ({ user, logout, view, setView }) => {
+    const { theme, toggleTheme } = useTheme();
     return (
         <>
             {/* ── Desktop Sidebar ── */}
@@ -29,6 +31,29 @@ const Navbar = ({ user, logout, view, setView }) => {
                     <span className="live-dot" />
                     <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">System Live</span>
                 </div>
+
+                {/* Theme toggle */}
+                <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-2 px-3 py-2 mb-6 rounded-xl w-full transition-all"
+                    style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)' }}
+                    title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                    <div className="w-4 h-4 flex items-center justify-center" style={{ color: theme === 'dark' ? '#fbbf24' : '#6366f1' }}>
+                        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                    </span>
+                    <div className="ml-auto w-8 h-4 rounded-full relative transition-colors"
+                        style={{ background: theme === 'dark' ? 'rgba(251,191,36,0.2)' : 'rgba(99,102,241,0.2)' }}>
+                        <div className="absolute top-0.5 w-3 h-3 rounded-full transition-all"
+                            style={{
+                                background: theme === 'dark' ? '#fbbf24' : '#6366f1',
+                                left: theme === 'dark' ? '2px' : '18px',
+                            }} />
+                    </div>
+                </button>
 
                 {/* Navigation */}
                 <nav className="flex flex-col gap-1 flex-1">
@@ -87,11 +112,14 @@ const Navbar = ({ user, logout, view, setView }) => {
                     </button>
                 ))}
                 <button
-                    onClick={logout}
-                    className="flex flex-col items-center gap-1 py-2 px-4 rounded-xl text-slate-500 text-[10px] font-bold uppercase tracking-wider"
+                    onClick={toggleTheme}
+                    className="flex flex-col items-center gap-1 py-2 px-4 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all"
+                    style={{ color: 'var(--text-muted)' }}
                 >
-                    <LogOut className="w-5 h-5" />
-                    Sign Out
+                    {theme === 'dark'
+                        ? <Sun className="w-5 h-5" style={{ color: '#fbbf24' }} />
+                        : <Moon className="w-5 h-5" style={{ color: '#6366f1' }} />}
+                    {theme === 'dark' ? 'Light' : 'Dark'}
                 </button>
             </nav>
         </>
