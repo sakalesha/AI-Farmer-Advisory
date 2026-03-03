@@ -326,3 +326,18 @@ Beyond the current Phase 2 advisory features, the project is structured to scale
 
 ### Next Step:
 → **Integration:** Update the MERN backend (`server/controllers/recommendController.js`) to consume predictions from the newly generated `yield_model.pkl` microservice endpoint instead of relying on static heuristics.
+
+---
+
+## ✅ Step 22 — Yield Model Backend Integration
+**Date:** 2026-03-03
+**Phase:** Phase 4 · Machine Learning Evolution
+
+### What We Did:
+- **Python Microservice Update:** Verified that `ml/app.py` exposes a dedicated `/api/predict_yield` POST endpoint. It correctly loads the Random Forest `yield_model.pkl` and its associated `yield_label_encoder.pkl`.
+- **Node.js Integration:** Confirmed that `server/controllers/recommendController.js` actively calls the new `/api/predict_yield` endpoint.
+- **Dynamic Yield Data:** The MERN backend now fetches live, ML-driven yield predictions based on real-time N, P, K, pH, rainfall, temperature, and humidity inputs, fully replacing the previous static heuristic defaults.
+- **End-to-End Verification:** Successfully tested the data flow. The Node API correctly proxies the farmer's soil data to the Python ML server, retrieving an accurate `T/Ha` yield prediction and passing it back to the React frontend.
+
+### Next Step:
+→ **Phase 4 Continued:** Explore integrating **LSTM Price Forecasting** for market trends, or **Computer Vision (YOLO)** for Pest/Disease detection as outlined in the roadmap.
