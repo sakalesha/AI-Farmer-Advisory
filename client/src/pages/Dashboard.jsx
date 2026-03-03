@@ -10,7 +10,8 @@ import HistoryLog from '../components/dashboard/HistoryLog';
 import YieldTrendChart from '../components/dashboard/YieldTrendChart';
 import ProfitHeatmap from '../components/dashboard/ProfitHeatmap';
 import SectorComparison from '../components/dashboard/SectorComparison';
-import { BarChart3, LayoutDashboard, Scale as ScaleIcon } from 'lucide-react';
+import MarketPrices from '../components/dashboard/MarketPrices';
+import { BarChart3, LayoutDashboard, Scale as ScaleIcon, LineChart } from 'lucide-react';
 
 const API_URL = '/api';
 
@@ -147,7 +148,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Left Side: Prediction Engine */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
-                        <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-gray-100 w-fit">
+                        <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-gray-100 w-fit overflow-x-auto">
                             <button
                                 onClick={() => setView('dashboard')}
                                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${view === 'dashboard' ? 'bg-white shadow-lg text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
@@ -162,11 +163,18 @@ const Dashboard = () => {
                                 <BarChart3 className="w-4 h-4" />
                                 Analytics
                             </button>
+                            <button
+                                onClick={() => setView('market')}
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${view === 'market' ? 'bg-white shadow-lg text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <LineChart className="w-4 h-4" />
+                                Live Market
+                            </button>
                         </div>
 
                         <AnimatePresence mode="wait">
-                            {view === 'dashboard' ? (
-                                <div className="space-y-8">
+                            {view === 'dashboard' && (
+                                <motion.div key="dashboard-view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
                                     {result ? (
                                         <RecommendationResult result={result} setResult={setResult} />
                                     ) : (
@@ -187,8 +195,10 @@ const Dashboard = () => {
                                             />
                                         </motion.div>
                                     )}
-                                </div>
-                            ) : (
+                                </motion.div>
+                            )}
+
+                            {view === 'analytics' && (
                                 <motion.div
                                     key="analytics"
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -207,6 +217,17 @@ const Dashboard = () => {
                                             Visualizing your farm's performance over time. Use the historical data to identify patterns in crop success and soil vitality.
                                         </p>
                                     </div>
+                                </motion.div>
+                            )}
+
+                            {view === 'market' && (
+                                <motion.div
+                                    key="market"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                >
+                                    <MarketPrices />
                                 </motion.div>
                             )}
                         </AnimatePresence>

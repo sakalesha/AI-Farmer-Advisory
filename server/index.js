@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const recommendRoutes = require('./routes/recommendRoutes');
 const weatherRoutes = require('./routes/weatherRoutes');
 const historyRoutes = require('./routes/historyRoutes');
+const marketRoutes = require('./routes/marketRoutes');
 
 dotenv.config();
 
@@ -77,6 +78,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/recommend', recommendRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/market', marketRoutes);
 
 // Fallback for SPA routing
 app.get(/.*/, (req, res) => {

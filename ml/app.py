@@ -107,7 +107,65 @@ def predict_yield():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
-from price_scraper import fetch_realtime_price
+from price_scraper import fetch_realtime_price, fetch_all_realtime_prices
+
+@app.route('/api/prices/all', methods=['GET'])
+def get_all_prices():
+    try:
+        # 1. Get Live Prices for all crops concurrently
+        all_live_prices = fetch_all_realtime_prices()
+        
+        result = []
+        for crop_name, live_price in all_live_prices.items():
+            
+            if not os.path.exists(PRICE_MODEL_PATH) or crop_name not in price_history:
+                 trend = "Stable"
+                 result.append({
+                     'crop': crop_name,
+                     'current_price': live_price,
+                     'predicted_price': live_price,
+                     'trend': trend
+                 })
+                 continue
+
+            # 2. Prepare Sequence (last 4 months + today's live price = length 5)
+            history_sequence = price_history[crop_name]
+            # Drop the oldest, add Live as the most recent
+            current_sequence = history_sequence[1:] + [live_price]
+            
+            # 3. Scale Data
+            seq_array = np.array(current_sequence).reshape(-1, 1)
+            scaled_seq = price_scaler.transform(seq_array)
+            
+            # 4. Predict
+            lstm_input = scaled_seq.reshape((1, 5, 1))
+            scaled_prediction = price_model.predict(lstm_input)
+            
+            # 5. Inverse Transform
+            predicted_price = price_scaler.inverse_transform(scaled_prediction)[0][0]
+            
+            # Determine trend
+            if predicted_price > live_price * 1.02:
+                trend = "Up"
+            elif predicted_price < live_price * 0.98:
+                trend = "Down"
+            else:
+                trend = "Stable"
+                
+            result.append({
+                'crop': crop_name,
+                'current_price': float(round(live_price, 2)),
+                'predicted_price': float(round(predicted_price, 2)),
+                'trend': trend
+            })
+            
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 400
 
 @app.route('/api/predict_price_trend', methods=['POST'])
 def predict_price_trend():

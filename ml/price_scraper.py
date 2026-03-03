@@ -92,6 +92,64 @@ def fetch_realtime_price(crop_name):
         fluctuation = random.uniform(-0.02, 0.05)
         return round(base_price * (1 + fluctuation), 2)
 
+def fetch_all_realtime_prices():
+    """
+    Fetches the live real-time prices for ALL 22 supported crops.
+    To avoid 22 separate API calls and rate-limiting, we fetch a large batch of today's records
+    and map them to our crops locally.
+    """
+    import random
+    api_key = os.environ.get('DATA_GOV_API_KEY')
+    all_prices = {}
+    
+    if not api_key:
+        print(f"⚠️ DATA_GOV_API_KEY not found. Simulating data for all crops.")
+        for crop, base_price in STATIC_PRICES.items():
+            fluctuation = random.uniform(-0.02, 0.05)
+            all_prices[crop] = round(base_price * (1 + fluctuation), 2)
+        return all_prices
+        
+    try:
+        # Fetch up to 2000 records to get a good span of all commodities across mandis today
+        url = f"https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key={api_key}&format=json&limit=2000"
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        
+        records = data.get('records', [])
+        
+        # Build a fast lookup dictionary of { commodity_name: modal_price } from the API
+        api_market_data = {}
+        for row in records:
+            comm = row.get('commodity')
+            price_str = row.get('modal_price')
+            if comm and price_str:
+                # Store the most recent read or average it
+                api_market_data[comm] = float(price_str)
+        
+        # Now match our 22 crops to the fast lookup dictionary
+        for crop_key, api_crop_name in API_CROP_MAP.items():
+            base_price = STATIC_PRICES.get(crop_key, 500)
+            
+            if api_crop_name in api_market_data:
+                live_price_inr_quintal = api_market_data[api_crop_name]
+                live_price_inr_ton = live_price_inr_quintal * 10
+                live_price_usd_ton = live_price_inr_ton / 83.0
+                all_prices[crop_key] = round(live_price_usd_ton, 2)
+            else:
+                # If a specific crop didn't have API data today, simulate its specific fluctuation
+                fluctuation = random.uniform(-0.02, 0.05)
+                all_prices[crop_key] = round(base_price * (1 + fluctuation), 2)
+                
+        return all_prices
+        
+    except Exception as e:
+        print(f"⚠️ Bulk API Error: {e}. Falling back to simulation for all.")
+        for crop, base_price in STATIC_PRICES.items():
+            fluctuation = random.uniform(-0.02, 0.05)
+            all_prices[crop] = round(base_price * (1 + fluctuation), 2)
+        return all_prices
+
 if __name__ == '__main__':
     # Test the real Data.gov API integration
     print("Testing Live Data.gov.in Price API...")
