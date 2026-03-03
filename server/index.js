@@ -34,8 +34,8 @@ const connectToDatabase = async () => {
 
 // Middleware to ensure DB connection
 app.use(async (req, res, next) => {
-    // Skip DB check for health/diag routes just in case
-    if (req.path === '/api/health' || req.path === '/api/diag') {
+    // Skip DB check for health/diag/market routes
+    if (req.path === '/api/health' || req.path === '/api/diag' || req.path.startsWith('/api/market')) {
         return next();
     }
     try {
