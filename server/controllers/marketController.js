@@ -3,8 +3,8 @@ const axios = require('axios');
 exports.getAllMarketPrices = async (req, res) => {
     try {
         // Internal call to Python ML Service
-        const ML_SERVICE_PORT = process.env.ML_SERVICE_PORT || 5001;
-        const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/prices/all`;
+        const ML_BASE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:5001';
+        const ML_URL = `${ML_BASE_URL}/api/prices/all`;
 
         const mlResponse = await axios.get(ML_URL);
 
