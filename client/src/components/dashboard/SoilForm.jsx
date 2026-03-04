@@ -1,97 +1,154 @@
 import React from 'react';
-import { Activity, Loader2, CloudRain, Beaker, Thermometer, Wind, ShieldCheck, Zap } from 'lucide-react';
+import { Activity, Loader2, CloudRain, Beaker, Thermometer, Wind, Zap, FlaskConical } from 'lucide-react';
 import NutrientBar from '../ui/NutrientBar';
 
+const fieldHelp = {
+    N: { max: 140, colorClass: 'bg-blue-500', accentColor: '#3b82f6', label: 'Nitrogen (N)', placeholder: 'e.g. 90', hint: 'From soil test report (kg/ha)' },
+    P: { max: 145, colorClass: 'bg-emerald-500', accentColor: '#10b981', label: 'Phosphorus (P)', placeholder: 'e.g. 42', hint: 'From soil test report (kg/ha)' },
+    K: { max: 205, colorClass: 'bg-purple-500', accentColor: '#8b5cf6', label: 'Potassium (K)', placeholder: 'e.g. 43', hint: 'From soil test report (kg/ha)' },
+};
+
+const envFields = [
+    { name: 'ph', label: 'Soil pH', placeholder: '6.5', Icon: Beaker, colorClass: 'bg-indigo-500', max: 14, iconColor: '#818cf8', hint: 'Ideal: 5.5 – 7.5' },
+    { name: 'temperature', label: 'Temperature', placeholder: '28.4', Icon: Thermometer, colorClass: 'bg-orange-500', max: 50, iconColor: '#fb923c', hint: 'Avg temperature (°C)' },
+    { name: 'humidity', label: 'Humidity %', placeholder: '82', Icon: Wind, colorClass: 'bg-blue-500', max: 100, iconColor: '#38bdf8', hint: 'Relative humidity (%)' },
+    { name: 'rainfall', label: 'Rainfall (mm)', placeholder: '202', Icon: CloudRain, colorClass: 'bg-emerald-500', max: 300, iconColor: '#10b981', hint: 'Annual rainfall (mm)' },
+];
+
 const SoilForm = ({ formData, handleInputChange, handleSubmit, handleSyncWeather, loading, weatherLoading }) => {
-    const environmentFields = [
-        { name: 'ph', label: 'pH Level', placeholder: '6.5', Icon: Beaker, color: 'bg-indigo-500', max: 14, iconColor: '#6366f1' },
-        { name: 'temperature', label: 'Temp (°C)', placeholder: '28.4', Icon: Thermometer, color: 'bg-orange-500', max: 50, iconColor: '#f97316' },
-        { name: 'humidity', label: 'Humidity (%)', placeholder: '82', Icon: Wind, color: 'bg-blue-500', max: 100, iconColor: '#3b82f6' },
-        { name: 'rainfall', label: 'Rainfall (mm)', placeholder: '202', Icon: CloudRain, color: 'bg-emerald-500', max: 300, iconColor: '#10b981' },
-    ];
-
-    const nutrientFields = [
-        { name: 'N', label: 'Nitrogen (N)', colorClass: 'bg-blue-500', max: 140 },
-        { name: 'P', label: 'Phosphorus (P)', colorClass: 'bg-emerald-500', max: 145 },
-        { name: 'K', label: 'Potassium (K)', colorClass: 'bg-purple-500', max: 205 },
-    ];
-
     return (
-        <div className="card overflow-hidden">
-            {/* Header */}
-            <div className="px-8 pt-8 pb-6 flex flex-col sm:flex-row justify-between items-start gap-4"
-                style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <div>
-                    <div className="flex items-center gap-3 mb-1">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                            style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                            <Activity className="w-4 h-4 text-emerald-400" />
-                        </div>
-                        <h2 className="text-lg font-black text-slate-100 tracking-tight">Soil Vitality Analysis</h2>
-                    </div>
-                    <p className="text-xs font-medium ml-11" style={{ color: 'var(--text-muted)' }}>Enter your field parameters for AI cross-referencing.</p>
-                </div>
+        <div className="card" style={{ overflow: 'hidden' }}>
 
+            {/* Top glow */}
+            <div style={{
+                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                width: '80%', height: 180,
+                background: 'radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 70%)',
+                pointerEvents: 'none',
+            }} />
+
+            {/* Header */}
+            <div style={{
+                padding: '1.5rem 1.75rem 1.25rem',
+                borderBottom: '1px solid var(--border-subtle)',
+                display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem',
+                position: 'relative', zIndex: 1,
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                    <div style={{
+                        width: 44, height: 44, borderRadius: '0.875rem', flexShrink: 0,
+                        background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.08))',
+                        border: '1px solid rgba(16,185,129,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 0 16px rgba(16,185,129,0.15)',
+                    }}>
+                        <FlaskConical style={{ width: 20, height: 20, color: '#34d399' }} />
+                    </div>
+                    <div>
+                        <h2 style={{ fontWeight: 900, fontSize: '1.125rem', color: 'var(--text-primary)', marginBottom: 2 }}>
+                            Soil Analysis Form
+                        </h2>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                            Enter field parameters — AI will find the best crop for you
+                        </p>
+                    </div>
+                </div>
                 <button type="button" onClick={handleSyncWeather} disabled={weatherLoading}
-                    className="btn-ghost text-xs px-4 py-2.5 shrink-0"
-                    style={{ fontSize: '0.75rem' }}>
-                    {weatherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudRain className="w-3.5 h-3.5" />}
-                    {weatherLoading ? 'Syncing...' : 'Sync Weather'}
+                    className="btn-ghost" style={{ padding: '0.625rem 1.125rem', flexShrink: 0 }}>
+                    {weatherLoading
+                        ? <Loader2 style={{ width: 15, height: 15, animation: 'spin 1s linear infinite' }} />
+                        : <CloudRain style={{ width: 15, height: 15 }} />
+                    }
+                    {weatherLoading ? 'Fetching…' : '📍 Auto-fill Weather'}
                 </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                {/* Nutrients section */}
+            <form onSubmit={handleSubmit} style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative', zIndex: 1 }}>
+
+                {/* NPK Section */}
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
-                        NPK Nutrients
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {nutrientFields.map(({ name, label, colorClass, max }) => (
-                            <div key={name} className="space-y-3">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                            NPK Nutrients
+                        </p>
+                        <span className="badge-emerald" style={{ fontSize: '0.65rem' }}>soil test report</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                        {Object.entries(fieldHelp).map(([name, { max, colorClass, accentColor, label, placeholder, hint }]) => (
+                            <div key={name} style={{
+                                padding: '1rem 1.125rem', borderRadius: '0.875rem',
+                                background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                                display: 'flex', flexDirection: 'column', gap: '0.625rem',
+                                transition: 'border-color 0.2s, box-shadow 0.2s',
+                            }}
+                                onFocusCapture={e => { e.currentTarget.style.borderColor = accentColor + '50'; e.currentTarget.style.boxShadow = `0 0 16px ${accentColor}15`; }}
+                                onBlurCapture={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                                {/* Nutrient bar at top */}
                                 <NutrientBar label={label} value={formData[name] || 0} max={max} colorClass={colorClass} />
-                                <input type="number" name={name} placeholder={`${name} Value`}
+                                <input
+                                    type="number" name={name}
+                                    placeholder={placeholder}
                                     value={formData[name]} onChange={handleInputChange} required
-                                    className="input-glass text-sm" />
+                                    className="input-glass"
+                                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'var(--border-subtle)' }}
+                                />
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.4 }}>{hint}</p>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div style={{ height: '1px', background: 'var(--border-subtle)' }} />
+                {/* Divider */}
+                <div className="divider-gradient" />
 
-                {/* Environmental section */}
+                {/* Environmental Section */}
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
-                        Environmental Conditions
-                    </p>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        {environmentFields.map(({ name, label, placeholder, Icon, color, max, iconColor }) => (
-                            <div key={name} className="space-y-2">
-                                <NutrientBar label="" value={formData[name] || 0} max={max} colorClass={color} />
-                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{label}</label>
-                                <div className="relative">
-                                    <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: iconColor }} />
-                                    <input type="text" inputMode="decimal" name={name}
-                                        value={formData[name]} onChange={handleInputChange} required
-                                        placeholder={placeholder}
-                                        className="input-glass text-sm pl-9" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                            Field Conditions
+                        </p>
+                        <span className="badge-indigo" style={{ fontSize: '0.65rem' }}>or use auto-fill ↑</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.875rem' }}>
+                        {envFields.map(({ name, label, placeholder, Icon, colorClass, max, iconColor, hint }) => (
+                            <div key={name} style={{
+                                padding: '0.875rem 1rem', borderRadius: '0.875rem',
+                                background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                                display: 'flex', flexDirection: 'column', gap: '0.5rem',
+                            }}>
+                                <NutrientBar label="" value={formData[name] || 0} max={max} colorClass={colorClass} />
+                                <label style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-secondary)', display: 'block' }}>
+                                    {label}
+                                </label>
+                                <div style={{ position: 'relative' }}>
+                                    <Icon style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: iconColor }} />
+                                    <input
+                                        type="text" inputMode="decimal" name={name}
+                                        value={formData[name]} onChange={handleInputChange}
+                                        required placeholder={placeholder}
+                                        className="input-glass"
+                                        style={{ paddingLeft: '2.375rem', background: 'rgba(255,255,255,0.03)', borderColor: 'var(--border-subtle)' }}
+                                    />
                                 </div>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>{hint}</p>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Submit */}
-                <button type="submit" disabled={loading}
-                    className="btn-primary w-full py-4 rounded-xl text-sm font-black tracking-wide"
-                    style={{ fontSize: '0.875rem', letterSpacing: '0.05em' }}>
+                <button type="submit" disabled={loading} className="btn-primary"
+                    style={{ width: '100%', padding: '1rem 1.5rem', borderRadius: '0.875rem', fontSize: '1rem', letterSpacing: '0.01em' }}>
                     {loading ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Processing AI Model...</>
+                        <><Loader2 style={{ width: 18, height: 18, animation: 'spin 1s linear infinite' }} /> Analysing your soil data…</>
                     ) : (
-                        <><Zap className="w-4 h-4" /> Run Predictive Engine</>
+                        <><Zap style={{ width: 18, height: 18 }} /> Get AI Crop Recommendation</>
                     )}
                 </button>
+
+                <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                    🔒 Your data is analysed securely and saved to your history automatically.
+                </p>
             </form>
         </div>
     );

@@ -61,6 +61,14 @@ exports.getRecommendation = async (req, res) => {
         let pricePerTon = marketPrices[crop.toLowerCase()] || 500;
         let predictedPrice = pricePerTon;
         let marketTrend = "Stable";
+        let usdToInr = 83.5;
+
+        try {
+            const res = await axios.get('https://api.frankfurter.app/latest?from=USD&to=INR', { timeout: 4000 });
+            if (res.data?.rates?.INR) usdToInr = res.data.rates.INR;
+        } catch (ex) {
+            console.warn('⚠️ Exchange rate fetch failed, using fallback:', usdToInr);
+        }
 
         try {
             const priceResponse = await axios.post(PRICE_URL, { crop });
@@ -76,6 +84,9 @@ exports.getRecommendation = async (req, res) => {
             marketTrend = trendValue > 2 ? 'Up' : trendValue < -2 ? 'Down' : 'Stable';
         }
 
+        // Apply currency conversion (USD to INR)
+        pricePerTon = Math.round(pricePerTon * usdToInr);
+        predictedPrice = Math.round(predictedPrice * usdToInr);
         const estimatedRevenue = estimatedYield * predictedPrice;
 
         const newRecord = new Recommendation({

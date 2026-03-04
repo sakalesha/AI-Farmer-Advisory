@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info } from 'lucide-react';
+import { Info, Scale as ScaleIcon, Sunrise, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import RecommendationResult from '../components/dashboard/RecommendationResult';
@@ -11,9 +11,31 @@ import YieldTrendChart from '../components/dashboard/YieldTrendChart';
 import ProfitHeatmap from '../components/dashboard/ProfitHeatmap';
 import SectorComparison from '../components/dashboard/SectorComparison';
 import MarketPrices from '../components/dashboard/MarketPrices';
-import { Scale as ScaleIcon } from 'lucide-react';
 
 const API_URL = '/api';
+
+const getGreeting = (name) => {
+    const hour = new Date().getHours();
+    const firstName = name?.split(' ')[0] || 'Farmer';
+    if (hour < 12) return { text: `Good morning, ${firstName} 🌅`, Icon: Sunrise };
+    if (hour < 17) return { text: `Good afternoon, ${firstName} ☀️`, Icon: Sun };
+    return { text: `Good evening, ${firstName} 🌙`, Icon: Moon };
+};
+
+const viewConfig = {
+    dashboard: {
+        title: '🌾 Crop Advisory',
+        subtitle: 'Enter your soil data — AI will recommend the best crop for your field.',
+    },
+    analytics: {
+        title: '📊 Field Analytics',
+        subtitle: 'Track your crop yield and profit trends over time to make better decisions.',
+    },
+    market: {
+        title: '📈 Market Prices',
+        subtitle: "Today's commodity prices from Agmarknet mandis across India — updated live.",
+    },
+};
 
 const Dashboard = () => {
     const { user, token, logout } = useAuth();
@@ -31,12 +53,12 @@ const Dashboard = () => {
 
     const fetchHistory = async () => {
         try {
-            const response = await axios.get(`${API_URL}/history`, { headers: { Authorization: `Bearer ${token}` } });
-            setHistory(Array.isArray(response.data) ? response.data : []);
+            const res = await axios.get(`${API_URL}/history`, { headers: { Authorization: `Bearer ${token}` } });
+            setHistory(Array.isArray(res.data) ? res.data : []);
         } catch { setHistory([]); }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = e => {
         const { name, value } = e.target;
         if (['ph', 'temperature'].includes(name)) {
             if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) setFormData({ ...formData, [name]: value });
@@ -45,14 +67,13 @@ const Dashboard = () => {
         if (value === '' || /^\d*$/.test(value)) setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
         setLoading(true); setError(null); setResult(null);
         try {
-            const payload = Object.keys(formData).reduce((acc, key) => { acc[key] = parseFloat(formData[key]); return acc; }, {});
-            const response = await axios.post(`${API_URL}/recommend`, payload, { headers: { Authorization: `Bearer ${token}` } });
-            setResult(response.data);
-            fetchHistory();
+            const payload = Object.keys(formData).reduce((acc, k) => { acc[k] = parseFloat(formData[k]); return acc; }, {});
+            const res = await axios.post(`${API_URL}/recommend`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            setResult(res.data); fetchHistory();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to get recommendation. Make sure the server is running.');
@@ -60,20 +81,19 @@ const Dashboard = () => {
     };
 
     const handleSyncWeather = async () => {
-        if (!navigator.geolocation) { setError("Geolocation is not supported by your browser"); return; }
+        if (!navigator.geolocation) { setError('Geolocation not supported by your browser'); return; }
         setWeatherLoading(true); setError(null);
-        navigator.geolocation.getCurrentPosition(async (position) => {
+        navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
             try {
-                const { latitude, longitude } = position.coords;
-                const response = await axios.get(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`, { headers: { Authorization: `Bearer ${token}` } });
-                const { temp, humidity, rainfall } = response.data.data;
+                const res = await axios.get(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`, { headers: { Authorization: `Bearer ${token}` } });
+                const { temp, humidity, rainfall } = res.data.data;
                 setFormData(prev => ({ ...prev, temperature: temp.toFixed(1), humidity: Math.round(humidity), rainfall: Math.round(rainfall) }));
-            } catch { setError("Failed to sync live weather. Check API key or try again."); }
+            } catch { setError('Failed to sync live weather. Check API key or try again.'); }
             finally { setWeatherLoading(false); }
-        }, () => { setError("Location access denied. Enable location to sync weather."); setWeatherLoading(false); });
+        }, () => { setError('Location access denied. Enable location to sync weather.'); setWeatherLoading(false); });
     };
 
-    const handleCompareToggle = (item) => {
+    const handleCompareToggle = item => {
         setCompareItems(prev => {
             const exists = prev.find(i => i._id === item._id);
             if (exists) return prev.filter(i => i._id !== item._id);
@@ -82,59 +102,57 @@ const Dashboard = () => {
         });
     };
 
+    const { text: greetingText } = getGreeting(user?.fullName);
+    const vcfg = viewConfig[view];
+
     return (
-        <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>
             <Navbar user={user} logout={logout} view={view} setView={setView} />
 
-            {/* Main content — offset by sidebar width on desktop */}
-            <div className="lg:pl-[260px] pb-20 lg:pb-0">
-                <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+            <div style={{ paddingLeft: 'var(--sidebar-w)', paddingBottom: 80 }} className="lg:pl-[264px] pb-20 lg:pb-0">
+                <main style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(1rem, 3vw, 2rem)' }}>
 
-                    {/* Page Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
-                    >
-                        <h1 className="text-2xl font-black text-slate-100 tracking-tight">
-                            {view === 'dashboard' && 'Crop Advisory'}
-                            {view === 'analytics' && 'Field Analytics'}
-                            {view === 'market' && 'Live Market'}
-                        </h1>
-                        <p className="text-sm text-slate-500 mt-1 font-medium">
-                            {view === 'dashboard' && 'Enter soil parameters to generate an AI crop recommendation.'}
-                            {view === 'analytics' && 'Visual insights from your historical field analysis.'}
-                            {view === 'market' && 'Real-time commodity prices from Agmarknet / Data.gov.in.'}
+                    {/* Page header */}
+                    <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+                        style={{ marginBottom: '2rem' }}>
+
+                        {/* Greeting (only on dashboard) */}
+                        {view === 'dashboard' && (
+                            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                                {greetingText}
+                            </p>
+                        )}
+
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
+                            <h1 style={{ fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2rem)', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                                {vcfg.title}
+                            </h1>
+                        </div>
+                        <p style={{ fontSize: '0.9rem', marginTop: '0.375rem', fontWeight: 500, color: 'var(--text-muted)' }}>
+                            {vcfg.subtitle}
                         </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                        {/* Main Content Area */}
-                        <div className="lg:col-span-8 flex flex-col gap-6">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', alignItems: 'start' }} className="lg:grid-cols-12">
+
+                        {/* Left: Main Content */}
+                        <div className="lg:col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <AnimatePresence mode="wait">
                                 {view === 'dashboard' && (
-                                    <motion.div key="dashboard-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                                        {result ? (
-                                            <RecommendationResult result={result} setResult={setResult} />
-                                        ) : (
-                                            <SoilForm
-                                                formData={formData}
-                                                handleInputChange={handleInputChange}
-                                                handleSubmit={handleSubmit}
-                                                handleSyncWeather={handleSyncWeather}
-                                                loading={loading}
-                                                weatherLoading={weatherLoading}
-                                            />
-                                        )}
+                                    <motion.div key="dashboard-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                        {result
+                                            ? <RecommendationResult result={result} setResult={setResult} />
+                                            : <SoilForm formData={formData} handleInputChange={handleInputChange} handleSubmit={handleSubmit} handleSyncWeather={handleSyncWeather} loading={loading} weatherLoading={weatherLoading} />
+                                        }
                                     </motion.div>
                                 )}
 
                                 {view === 'analytics' && (
-                                    <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <YieldTrendChart history={history} />
-                                            <ProfitHeatmap history={history} />
-                                        </div>
+                                    <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                                        <YieldTrendChart history={history} />
+                                        <ProfitHeatmap history={history} />
                                     </motion.div>
                                 )}
 
@@ -145,48 +163,64 @@ const Dashboard = () => {
                                 )}
                             </AnimatePresence>
 
+                            {/* Error banner */}
                             {error && (
                                 <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
-                                    className="flex items-center gap-3 px-5 py-4 rounded-2xl text-rose-300 text-sm font-semibold"
-                                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                                    <Info className="w-4 h-4 shrink-0 text-rose-400" />
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                        padding: '0.875rem 1.25rem', borderRadius: '0.875rem',
+                                        color: '#fca5a5', fontSize: '0.875rem', fontWeight: 600,
+                                        background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+                                    }}>
+                                    <Info style={{ width: 16, height: 16, flexShrink: 0, color: '#f87171' }} />
                                     {error}
                                 </motion.div>
                             )}
                         </div>
 
                         {/* Right: History + Compare */}
-                        <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
+                        <div className="lg:col-span-4 lg:sticky lg:top-8" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                            {/* Compare selection box */}
                             {compareItems.length > 0 && (
                                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                    className="rounded-2xl p-5"
-                                    style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-accent)' }}>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <ScaleIcon className="w-4 h-4 text-emerald-400" />
-                                            <p className="text-xs font-black uppercase tracking-widest text-emerald-400">Compare</p>
+                                    style={{ borderRadius: '1rem', padding: '1.125rem', background: 'var(--bg-elevated)', border: '1px solid var(--border-accent)', boxShadow: '0 0 24px rgba(16,185,129,0.1)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.875rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <ScaleIcon style={{ width: 15, height: 15, color: '#34d399' }} />
+                                            <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#34d399' }}>Compare</p>
                                         </div>
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-md" style={{ background: 'rgba(16,185,129,0.12)', color: 'var(--emerald-400)' }}>{compareItems.length}/2</span>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: 99, background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
+                                            {compareItems.length}/2
+                                        </span>
                                     </div>
-                                    <div className="space-y-2 mb-4">
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.875rem' }}>
                                         {compareItems.map(item => (
-                                            <div key={item._id} className="flex justify-between items-center px-3 py-2 rounded-xl" style={{ background: 'var(--bg-hover)' }}>
-                                                <span className="text-sm font-bold text-slate-200 capitalize">{item.prediction.crop}</span>
-                                                <span className="text-[10px] text-slate-500 font-mono">#{item._id.slice(-6)}</span>
+                                            <div key={item._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', borderRadius: '0.625rem', background: 'var(--bg-hover)' }}>
+                                                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                                                    {item.prediction.crop}
+                                                </span>
+                                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>#{item._id.slice(-5)}</span>
                                             </div>
                                         ))}
                                         {compareItems.length < 2 && (
-                                            <div className="min-h-[40px] rounded-xl flex items-center justify-center" style={{ border: '1px dashed var(--border-muted)' }}>
-                                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">Select another from history</p>
+                                            <div style={{ minHeight: 40, borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--border-muted)' }}>
+                                                <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Select another from history</p>
                                             </div>
                                         )}
                                     </div>
-                                    <button
-                                        disabled={compareItems.length < 2}
-                                        onClick={() => setShowComparison(true)}
-                                        className="btn-primary w-full py-3 rounded-xl text-sm disabled:opacity-40"
-                                    >Compare Scenarios</button>
-                                    <button onClick={() => setCompareItems([])} className="w-full mt-2 text-[10px] font-bold text-slate-600 hover:text-slate-400 uppercase tracking-widest transition-colors">Clear</button>
+
+                                    <button disabled={compareItems.length < 2} onClick={() => setShowComparison(true)}
+                                        className="btn-primary" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.75rem', fontSize: '0.875rem' }}>
+                                        Compare Scenarios
+                                    </button>
+                                    <button onClick={() => setCompareItems([])}
+                                        style={{ width: '100%', marginTop: '0.5rem', padding: '0.35rem', cursor: 'pointer', border: 'none', background: 'transparent', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'color 0.2s' }}
+                                        onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
+                                        Clear
+                                    </button>
                                 </motion.div>
                             )}
 

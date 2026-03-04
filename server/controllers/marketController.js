@@ -1,16 +1,16 @@
 const axios = require('axios');
 
-// Static fallback prices (INR/Quintal equivalent in USD/Ton, mirrors price_scraper.py)
-const STATIC_PRICES = {
-    rice: 54.2, maize: 36.1, chickpea: 96.4, kidneybeans: 144.6,
-    pigeonpeas: 108.4, mothbeans: 132.5, mungbean: 156.6, blackgram: 120.5,
-    lentil: 132.5, pomegranate: 180.7, banana: 72.3, mango: 144.6,
-    grapes: 241.0, watermelon: 48.2, muskmelon: 60.2, apple: 216.9,
-    orange: 168.7, papaya: 96.4, coconut: 421.7, cotton: 192.8,
-    jute: 84.3, coffee: 481.9
+// Static fallback prices in INR/Quintal (modal mandi prices)
+const STATIC_PRICES_INR = {
+    rice: 2200, maize: 1500, chickpea: 5500, kidneybeans: 8500,
+    pigeonpeas: 6200, mothbeans: 7800, mungbean: 9200, blackgram: 7100,
+    lentil: 7800, pomegranate: 10600, banana: 4200, mango: 8500,
+    grapes: 14200, watermelon: 2800, muskmelon: 3500, apple: 12700,
+    orange: 9900, papaya: 5700, coconut: 24800, cotton: 11300,
+    jute: 4900, coffee: 28400
 };
 
-// Maps our crop keys to Agmarknet API commodity names
+// Agmarknet API commodity name lookup
 const API_CROP_MAP = {
     rice: 'Paddy(Dhan)(Basmati)', maize: 'Maize',
     chickpea: 'Bengal Gram(Gram)(Whole)', kidneybeans: 'Rajgir',
@@ -23,13 +23,17 @@ const API_CROP_MAP = {
     jute: 'Jute', coffee: 'Coffee'
 };
 
-// Convert INR/Quintal → USD/Ton
-const inrQuintalToUsdTon = (inrPerQuintal) => parseFloat(((inrPerQuintal * 10) / 83.0).toFixed(2));
+// ±2–5% fluctuation for demo realism on fallback
+const simulate = (base) => Math.round(base * (1 + (Math.random() * 0.07 - 0.02)));
 
-// Add ±2–5% random fluctuation to simulate live movement on fallback
-const simulate = (basePrice) => {
-    const fluctuation = (Math.random() * 0.07) - 0.02; // -2% to +5%
-    return parseFloat((basePrice * (1 + fluctuation)).toFixed(2));
+// Fetch live USD/INR rate from frankfurter.app (free, no key needed)
+const getLiveExchangeRate = async () => {
+    try {
+        const res = await axios.get('https://api.frankfurter.app/latest?from=USD&to=INR', { timeout: 5000 });
+        return res.data?.rates?.INR || 83.5;
+    } catch {
+        return 83.5; // fallback rate
+    }
 };
 
 exports.getAllMarketPrices = async (req, res) => {
@@ -37,53 +41,63 @@ exports.getAllMarketPrices = async (req, res) => {
         const apiKey = process.env.DATA_GOV_API_KEY;
         let apiMarketData = {};
 
+        // Fetch live exchange rate in parallel with market data
+        const [usdToInr] = await Promise.all([
+            getLiveExchangeRate()
+        ]);
+
         if (apiKey) {
             try {
                 const url = `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=${apiKey}&format=json&limit=2000`;
                 const response = await axios.get(url, { timeout: 12000 });
                 const records = response.data?.records || [];
-
-                // Build a fast lookup: { commodity_name: modal_price_inr_quintal }
                 records.forEach(row => {
                     if (row.commodity && row.modal_price) {
                         apiMarketData[row.commodity] = parseFloat(row.modal_price);
                     }
                 });
-                console.log(`✅ Data.gov.in API returned ${records.length} records`);
+                console.log(`✅ Data.gov.in API: ${records.length} records | USD/INR: ${usdToInr}`);
             } catch (apiErr) {
-                console.warn('⚠️ Data.gov.in API failed, using fallback simulation:', apiErr.message);
+                console.warn('⚠️ Data.gov.in API failed, using simulation:', apiErr.message);
             }
-        } else {
-            console.warn('⚠️ DATA_GOV_API_KEY not set — using fallback simulation');
         }
 
-        // Build result for all 22 crops
         const result = Object.entries(API_CROP_MAP).map(([cropKey, apiName]) => {
-            const basePrice = STATIC_PRICES[cropKey] || 60;
-            let currentPrice;
+            const staticBase = STATIC_PRICES_INR[cropKey] || 3500;
 
-            if (apiMarketData[apiName]) {
-                currentPrice = inrQuintalToUsdTon(apiMarketData[apiName]);
-            } else {
-                currentPrice = simulate(basePrice);
-            }
+            // INR/Quintal — use live data or simulated fallback
+            const inrPerQuintal = apiMarketData[apiName]
+                ? Math.round(apiMarketData[apiName])
+                : simulate(staticBase);
 
-            // Simple trend: compare to static baseline
-            const diff = currentPrice - basePrice;
-            const trend = diff > basePrice * 0.02 ? 'Up' : diff < -basePrice * 0.02 ? 'Down' : 'Stable';
+            // INR/Ton (1 quintal = 100kg; 1 ton = 1000kg → ×10)
+            const inrPerTon = inrPerQuintal * 10;
+
+            // USD/Ton for reference
+            const usdPerTon = parseFloat((inrPerTon / usdToInr).toFixed(2));
+
+            // Trend vs static baseline
+            const diff = inrPerQuintal - staticBase;
+            const trend = diff > staticBase * 0.02 ? 'Up' : diff < -staticBase * 0.02 ? 'Down' : 'Stable';
 
             return {
                 crop: cropKey,
-                current_price: currentPrice,
-                predicted_price: currentPrice, // LSTM not available on free tier
-                trend
+                inr_per_quintal: inrPerQuintal,
+                inr_per_ton: inrPerTon,
+                current_price: usdPerTon,   // kept for backward compat
+                trend,
+                usd_to_inr: usdToInr
             };
         });
 
-        res.status(200).json({ status: 'success', data: result });
+        res.status(200).json({
+            status: 'success',
+            data: result,
+            meta: { usd_to_inr: usdToInr, currency: 'INR', unit: 'per quintal (100kg)' }
+        });
 
     } catch (error) {
-        console.error('❌ Error in getAllMarketPrices:', error.message);
+        console.error('❌ Market price error:', error.message);
         res.status(500).json({ status: 'error', message: 'Failed to fetch market prices' });
     }
 };

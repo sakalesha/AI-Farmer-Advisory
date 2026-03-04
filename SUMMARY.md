@@ -367,3 +367,28 @@ Beyond the current Phase 2 advisory features, the project is structured to scale
 
 ### Next Step:
 → **Phase 4 Continued:** Explore integrating **Computer Vision (YOLO)** for Pest/Disease detection as outlined in the roadmap.
+
+---
+
+## ✅ Step 25 — Premium UI/UX Redesign
+**Date:** 2026-03-04
+**Phase:** Phase 4 · UI/UX Polish & Design Upgrade
+
+### What We Did:
+- **Complete Design System Overhaul (`index.css`):** Rebuilt all CSS design tokens from scratch. Introduced a deeper `#020815` navy base, true glassmorphism (backdrop-filter with saturate), gradient-border card trick (`.glass-premium`), and a richer shadow/glow token set including `--accent-indigo` and `--accent-gold`. Added new animation keyframes: `float`, `pulse-ring`, `pulse-glow`, `bg-shift`, and `gradient-shift`. Added utility classes: `.gradient-text`, `.badge-emerald/indigo/gold`, `.stat-card`, `.divider-gradient`, `.section-label`.
+- **Navbar (`Navbar.jsx`):** Premium sidebar with gradient icon logo (glow shadow), initials-based avatar with emerald/indigo radial gradient, active nav item left-bar glow indicator with `layoutId` animated dot, and section labels. Frosted-glass sidebar panel with a glow stripe on the left edge.
+- **Auth Page (`AuthPage.jsx`):** Left panel features layered decorative orbs (emerald + indigo + amber), stat chips (22+ Crops / 95% Accuracy / Live Markets), animated feature cards with icon gradient backgrounds and hover lift, and a gradient hero headline. Right panel has a pill-style tab switcher, glassmorphism inputs with icon prefixes, a vibrant gradient submit button, and polished error states.
+- **Soil Form (`SoilForm.jsx`):** NPK and environmental fields now rendered as individual elevated cards with focus-activated `borderColor` and `boxShadow` glow. Badge labels ("soil test report", "or use auto-fill") using the new badge system.
+- **Recommendation Result (`RecommendationResult.jsx`):** Crop name is now a massive gradient text (`#f0f6ff → #34d399 → #6ee7b7`) with CSS drop-shadow glow. Stat cards have per-card colored glow borders and icon backgrounds. Added a subtle grid-pattern texture overlay for depth.
+- **History Log (`HistoryLog.jsx`):** Added a `cropEmojis` map so each crop (rice, wheat, maize, etc.) renders with its emoji. NPK values shown as colored pill badges (blue / green / purple). Selection state has left border glow + box shadow. Better empty state with emoji illustration.
+- **Market Prices (`MarketPrices.jsx`):** Price cards now glassmorphism with a per-trend colored left border and background glow. `whileHover={{ y: -3 }}` lift animation. Live dot with pulse-ring in the header. Exchange rate chip.
+- **Yield Trend Chart (`YieldTrendChart.jsx`):** Custom `<CustomTooltip>` component with a premium pop-upCard. Active and inactive data dots with stroked borders. Richer area gradient fill with near-zero opacity at the bottom.
+- **Dashboard (`Dashboard.jsx`):** Added a time-aware greeting: "Good morning / afternoon / evening, {firstName} 🌅☀️🌙". Cleaner page header layout with unified view config object.
+
+### Tech Highlights:
+- All cards use `backdrop-filter: blur(20px) saturate(180%)` for true glassmorphism.
+- Emerald + Indigo + Gold three-token accent system for visual hierarchy.
+- CSS gradient border technique via pseudo-element `mask` trick (`.glass-premium`).
+- `pulse-ring` keyframe wraps the live dot with an expanding glow ring.
+- Crop emoji mapping covers all 22 crop classes from the ML model.
+

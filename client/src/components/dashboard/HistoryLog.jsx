@@ -1,86 +1,121 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { History, Zap, Activity, Database, ChevronRight, Clock } from 'lucide-react';
+import { History, Zap, Activity, Database, ChevronRight, Clock, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+
+const cropEmojis = {
+    rice: '🌾', wheat: '🌿', maize: '🌽', cotton: '🪴', sugarcane: '🎋',
+    jute: '🌱', lentil: '🫘', mungbean: '🫛', blackgram: '⚫', kidneybeans: '🫘',
+    pigeonpeas: '🟡', mothbeans: '🫘', muskmelon: '🍈', watermelon: '🍉',
+    grapes: '🍇', mango: '🥭', banana: '🍌', pomegranate: '🍎', lemon: '🍋',
+    orange: '🍊', papaya: '🍈', coconut: '🥥', apple: '🍎', coffee: '☕',
+};
 
 const HistoryLog = ({ history, onSelect, onCompareSelect, selectedItems }) => {
     return (
-        <div className="card flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 180px)', overflow: 'hidden' }}>
+
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5"
-                style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                        style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                        <History className="w-3.5 h-3.5 text-emerald-400" />
+            <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '1.125rem 1.25rem',
+                borderBottom: '1px solid var(--border-subtle)',
+                flexShrink: 0,
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                    <div style={{
+                        width: 36, height: 36, borderRadius: '0.625rem', flexShrink: 0,
+                        background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <History style={{ width: 16, height: 16, color: '#34d399' }} />
                     </div>
                     <div>
-                        <h2 className="text-sm font-black text-slate-200">Audit Log</h2>
-                        <p className="text-[9px] text-slate-600 uppercase tracking-widest font-bold">Select 2 to compare</p>
+                        <h2 style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>Analysis History</h2>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>Select 2 entries to compare</p>
                     </div>
                 </div>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-md"
-                    style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--emerald-400)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <span style={{
+                    minWidth: 32, padding: '0.2rem 0.625rem', textAlign: 'center',
+                    fontSize: '0.75rem', fontWeight: 800, borderRadius: 99,
+                    background: 'rgba(16,185,129,0.1)', color: 'var(--emerald-400)', border: '1px solid rgba(16,185,129,0.2)',
+                }}>
                     {history.length}
                 </span>
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem' }}>
                 {history.length > 0 ? (
                     <AnimatePresence initial={false}>
                         {history.map((item, index) => {
                             const isSelected = selectedItems.find(s => s._id === item._id);
+                            const emoji = cropEmojis[item.prediction.crop?.toLowerCase()] || '🌱';
                             return (
-                                <motion.div
-                                    key={item._id}
-                                    initial={{ opacity: 0, x: 12 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.04 }}
+                                <motion.div key={item._id}
+                                    initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.03 }}
                                     onClick={() => onSelect(item)}
-                                    className={cn(
-                                        "relative p-4 rounded-2xl cursor-pointer transition-all group",
-                                        isSelected
-                                            ? "border-emerald-500/40"
-                                            : "border-transparent hover:border-emerald-500/20"
-                                    )}
                                     style={{
-                                        background: isSelected ? 'rgba(16,185,129,0.06)' : 'var(--bg-elevated)',
+                                        position: 'relative', padding: '0.875rem 1rem', borderRadius: '0.875rem',
+                                        cursor: 'pointer', marginBottom: '0.5rem',
+                                        background: isSelected ? 'rgba(16,185,129,0.07)' : 'var(--bg-elevated)',
                                         border: `1px solid ${isSelected ? 'rgba(16,185,129,0.3)' : 'var(--border-subtle)'}`,
-                                        borderLeft: isSelected ? '3px solid var(--emerald-400)' : '3px solid transparent',
+                                        borderLeft: `3px solid ${isSelected ? 'var(--emerald-400)' : 'transparent'}`,
+                                        boxShadow: isSelected ? '0 0 20px rgba(16,185,129,0.1)' : 'none',
+                                        transition: 'all 0.2s',
                                     }}
-                                >
+                                    onMouseEnter={e => { if (!isSelected) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderColor = 'var(--border-muted)'; } }}
+                                    onMouseLeave={e => { if (!isSelected) { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'var(--border-subtle)'; } }}>
+
                                     {/* Compare toggle */}
-                                    <div
-                                        onClick={e => { e.stopPropagation(); onCompareSelect(item); }}
-                                        className={cn(
-                                            "absolute top-4 right-4 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all",
-                                        )}
+                                    <div onClick={e => { e.stopPropagation(); onCompareSelect(item); }}
                                         style={{
+                                            position: 'absolute', top: '0.875rem', right: '0.875rem',
+                                            width: 22, height: 22, borderRadius: '50%', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
                                             background: isSelected ? 'var(--emerald-500)' : 'transparent',
-                                            borderColor: isSelected ? 'var(--emerald-500)' : 'var(--border-muted)',
-                                        }}
-                                    >
-                                        {isSelected && <Zap className="w-2.5 h-2.5 text-white fill-current" />}
+                                            border: `2px solid ${isSelected ? 'var(--emerald-500)' : 'var(--border-muted)'}`,
+                                            transition: 'all 0.2s',
+                                            boxShadow: isSelected ? '0 0 10px rgba(16,185,129,0.4)' : 'none',
+                                        }}>
+                                        {isSelected && <CheckCircle2 style={{ width: 13, height: 13, color: '#fff' }} />}
                                     </div>
 
-                                    <div className="pr-6">
-                                        <p className="text-sm font-black text-slate-200 capitalize mb-2 group-hover:text-emerald-400 transition-colors">
-                                            {item.prediction.crop}
-                                        </p>
-                                        <div className="flex items-center gap-3 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>
-                                            <span className="flex items-center gap-1 text-blue-400/70"><Zap className="w-2.5 h-2.5" /> N:{item.inputs.N}</span>
-                                            <span className="flex items-center gap-1 text-emerald-400/70"><Activity className="w-2.5 h-2.5" /> P:{item.inputs.P}</span>
-                                            <span className="flex items-center gap-1 text-purple-400/70"><Database className="w-2.5 h-2.5" /> K:{item.inputs.K}</span>
+                                    <div style={{ paddingRight: '1.75rem' }}>
+                                        {/* Crop name with emoji */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                            <span style={{ fontSize: '1.125rem' }}>{emoji}</span>
+                                            <p style={{
+                                                fontWeight: 800, fontSize: '0.9375rem', textTransform: 'capitalize',
+                                                color: isSelected ? 'var(--emerald-400)' : 'var(--text-primary)',
+                                                transition: 'color 0.2s',
+                                            }}>
+                                                {item.prediction.crop}
+                                            </p>
                                         </div>
-                                        <div className="flex items-center justify-between mt-3 pt-2.5"
-                                            style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                                            <span className="flex items-center gap-1 text-[9px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                                                <Clock className="w-2.5 h-2.5" />
-                                                {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+
+                                        {/* NPK chips */}
+                                        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.625rem' }}>
+                                            <span style={{ padding: '0.15rem 0.5rem', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, background: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>
+                                                N:{item.inputs.N}
                                             </span>
-                                            <span className="text-[9px] font-bold text-emerald-500/0 group-hover:text-emerald-500 transition-colors flex items-center gap-0.5">
-                                                View <ChevronRight className="w-2.5 h-2.5" />
+                                            <span style={{ padding: '0.15rem 0.5rem', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
+                                                P:{item.inputs.P}
+                                            </span>
+                                            <span style={{ padding: '0.15rem 0.5rem', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, background: 'rgba(139,92,246,0.12)', color: '#c084fc', border: '1px solid rgba(139,92,246,0.2)' }}>
+                                                K:{item.inputs.K}
+                                            </span>
+                                        </div>
+
+                                        {/* Bottom row */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', fontWeight: 500, color: 'var(--text-muted)' }}>
+                                                <Clock style={{ width: 11, height: 11 }} />
+                                                {new Date(item.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--emerald-400)', display: 'flex', alignItems: 'center', gap: '0.15rem', opacity: 0.7 }}>
+                                                View <ChevronRight style={{ width: 11, height: 11 }} />
                                             </span>
                                         </div>
                                     </div>
@@ -89,13 +124,19 @@ const HistoryLog = ({ history, onSelect, onCompareSelect, selectedItems }) => {
                         })}
                     </AnimatePresence>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-                            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
-                            <History className="w-6 h-6 text-slate-600" />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', textAlign: 'center' }}>
+                        <div style={{
+                            width: 60, height: 60, borderRadius: '1rem', marginBottom: '1rem',
+                            background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '1.75rem',
+                        }}>
+                            🌱
                         </div>
-                        <p className="text-sm font-bold text-slate-500">No history yet</p>
-                        <p className="text-xs text-slate-600 mt-1">Run your first analysis above</p>
+                        <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-secondary)', marginBottom: '0.375rem' }}>No analyses yet</p>
+                        <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                            Submit the form to get your first crop recommendation
+                        </p>
                     </div>
                 )}
             </div>
