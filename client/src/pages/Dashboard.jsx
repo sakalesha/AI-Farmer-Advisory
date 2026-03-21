@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Scale as ScaleIcon, Sunrise, Sun, Moon } from 'lucide-react';
+import { Info, Scale as ScaleIcon, Sunrise, Sun, Moon, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import RecommendationResult from '../components/dashboard/RecommendationResult';
 import SoilForm from '../components/dashboard/SoilForm';
 import HistoryLog from '../components/dashboard/HistoryLog';
 import YieldTrendChart from '../components/dashboard/YieldTrendChart';
+import SoilTrendChart from '../components/dashboard/SoilTrendChart';
 import ProfitHeatmap from '../components/dashboard/ProfitHeatmap';
 import SectorComparison from '../components/dashboard/SectorComparison';
 import MarketPrices from '../components/dashboard/MarketPrices';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = '/api';
 
@@ -37,9 +39,24 @@ const viewConfig = {
     },
 };
 
+const Accordion = ({ title, children, defaultOpen = false }) => {
+    const [open, setOpen] = useState(defaultOpen);
+    return (
+        <div style={{ background: 'var(--bg-elevated)', borderRadius: '1rem', border: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
+            <button onClick={() => setOpen(!open)} style={{ width: '100%', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{title}</span>
+                <ChevronRight style={{ width: 16, height: 16, color: 'var(--text-muted)', transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+            </button>
+            {open && <div style={{ padding: '0 1.25rem 1.25rem' }}>{children}</div>}
+        </div>
+    );
+};
+
 const Dashboard = () => {
-    const { user, token, logout } = useAuth();
-    const [formData, setFormData] = useState({ N: '', P: '', K: '', temperature: '', humidity: '', ph: '', rainfall: '' });
+    const { user, logout } = useAuth();
+    const { t } = useTranslation();
+    const [formData, setFormData] = useState({ fieldName: '', N: '', P: '', K: '', temperature: '', humidity: '', ph: '', rainfall: '' });
+    const [fieldErrors, setFieldErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState([]);
@@ -48,23 +65,37 @@ const Dashboard = () => {
     const [view, setView] = useState('dashboard');
     const [compareItems, setCompareItems] = useState([]);
     const [showComparison, setShowComparison] = useState(false);
+    const [showBanner, setShowBanner] = useState(true);
 
-    useEffect(() => { if (user) fetchHistory(); }, [user]);
-
-    const fetchHistory = async () => {
+    const fetchHistory = React.useCallback(async () => {
         try {
-            const res = await axios.get(`${API_URL}/history`, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await axios.get(`${API_URL}/history`);
             setHistory(Array.isArray(res.data) ? res.data : []);
-        } catch { setHistory([]); }
-    };
+        } catch { setHistory([]);        }
+    }, [user]);
+
+    useEffect(() => { if (user) fetchHistory(); }, [user, fetchHistory]);
 
     const handleInputChange = e => {
         const { name, value } = e.target;
-        if (['ph', 'temperature'].includes(name)) {
-            if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) setFormData({ ...formData, [name]: value });
-            return;
+        setFormData({ ...formData, [name]: value });
+
+        let error = '';
+        if (value !== '' && name !== 'fieldName') {
+            if (['ph', 'temperature'].includes(name)) {
+                if (!/^[0-9]*\.?[0-9]*$/.test(value)) error = 'Numbers only (e.g. 6.5)';
+            } else {
+                if (!/^\d*$/.test(value)) error = 'Numbers only';
+            }
+
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+                if (name === 'ph' && (num < 0 || num > 14)) error = 'pH must be between 0 and 14';
+                if (name === 'humidity' && (num < 0 || num > 100)) error = 'Humidity must be 0–100%';
+            }
         }
-        if (value === '' || /^\d*$/.test(value)) setFormData({ ...formData, [name]: value });
+        
+        setFieldErrors(prev => ({ ...prev, [name]: error }));
     };
 
     const handleSubmit = async e => {
@@ -72,7 +103,7 @@ const Dashboard = () => {
         setLoading(true); setError(null); setResult(null);
         try {
             const payload = Object.keys(formData).reduce((acc, k) => { acc[k] = parseFloat(formData[k]); return acc; }, {});
-            const res = await axios.post(`${API_URL}/recommend`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await axios.post(`${API_URL}/recommend`, payload);
             setResult(res.data); fetchHistory();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
@@ -85,7 +116,7 @@ const Dashboard = () => {
         setWeatherLoading(true); setError(null);
         navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
             try {
-                const res = await axios.get(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`, { headers: { Authorization: `Bearer ${token}` } });
+                const res = await axios.get(`${API_URL}/weather?lat=${latitude}&lon=${longitude}`);
                 const { temp, humidity, rainfall } = res.data.data;
                 setFormData(prev => ({ ...prev, temperature: temp.toFixed(1), humidity: Math.round(humidity), rainfall: Math.round(rainfall) }));
             } catch { setError('Failed to sync live weather. Check API key or try again.'); }
@@ -125,11 +156,11 @@ const Dashboard = () => {
 
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
                             <h1 style={{ fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2rem)', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                                {vcfg.title}
+                                {view === 'dashboard' ? t(`dashboard.title`) : vcfg.title}
                             </h1>
                         </div>
                         <p style={{ fontSize: '0.9rem', marginTop: '0.375rem', fontWeight: 500, color: 'var(--text-muted)' }}>
-                            {vcfg.subtitle}
+                            {view === 'dashboard' ? t(`dashboard.subtitle`) : vcfg.subtitle}
                         </p>
                     </motion.div>
 
@@ -141,18 +172,37 @@ const Dashboard = () => {
                                 {view === 'dashboard' && (
                                     <motion.div key="dashboard-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                                         style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                        {history.length > 0 && showBanner && !result && (
+                                            <div style={{ background: 'var(--bg-elevated)', padding: '1rem', borderRadius: '1rem', border: '1px solid var(--border-accent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 0 20px rgba(45,107,48,0.08)' }}>
+                                                <div>
+                                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--emerald-600)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recent Advisory</p>
+                                                    <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>You recently analyzed a field for <span style={{ textTransform: 'capitalize', fontWeight: 800 }}>{history[0].prediction?.crop}</span>.</p>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button onClick={() => setResult(history[0])} className="btn-primary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', borderRadius: 8 }}>View</button>
+                                                    <button onClick={() => setShowBanner(false)} className="btn-ghost" style={{ padding: '0.4rem 0.5rem', borderRadius: 8 }}><X style={{ width: 14, height: 14 }} /></button>
+                                                </div>
+                                            </div>
+                                        )}
                                         {result
                                             ? <RecommendationResult result={result} setResult={setResult} />
-                                            : <SoilForm formData={formData} handleInputChange={handleInputChange} handleSubmit={handleSubmit} handleSyncWeather={handleSyncWeather} loading={loading} weatherLoading={weatherLoading} />
+                                            : <SoilForm formData={formData} handleInputChange={handleInputChange} handleSubmit={handleSubmit} handleSyncWeather={handleSyncWeather} loading={loading} weatherLoading={weatherLoading} fieldErrors={fieldErrors} setFormData={setFormData} setFieldErrors={setFieldErrors} />
                                         }
                                     </motion.div>
                                 )}
 
                                 {view === 'analytics' && (
                                     <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                                        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                                        <YieldTrendChart history={history} />
-                                        <ProfitHeatmap history={history} />
+                                        style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                        <Accordion title="Yield Trend Chart" defaultOpen={true}>
+                                            <YieldTrendChart history={history} />
+                                        </Accordion>
+                                        <Accordion title="Soil Health Trends" defaultOpen={false}>
+                                            <SoilTrendChart history={history} />
+                                        </Accordion>
+                                        <Accordion title="Profit Heatmap" defaultOpen={false}>
+                                            <ProfitHeatmap history={history} />
+                                        </Accordion>
                                     </motion.div>
                                 )}
 

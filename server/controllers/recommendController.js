@@ -2,20 +2,58 @@ const axios = require('axios');
 const Recommendation = require('../models/Recommendation');
 const cropRequirements = require('../data/cropRequirements');
 const marketPrices = require('../data/marketPrices');
+const { LRUCache } = require('lru-cache');
+
+const mlCache = new LRUCache({
+    max: 200,
+    ttl: 1000 * 60 * 60 * 24 // 24 hours
+});
 
 exports.getRecommendation = async (req, res) => {
     try {
-        const { N, P, K, temperature, humidity, ph, rainfall } = req.body;
-
-        // Internal call to Python service running on port 5001
+        const { fieldName, N, P, K, temperature, humidity, ph, rainfall } = req.body;
         const ML_SERVICE_PORT = process.env.ML_SERVICE_PORT || 5001;
-        const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict`;
+        const cacheKey = `${N}|${P}|${K}|${temperature}|${humidity}|${ph}|${rainfall}`;
+        
+        let crop, irrigation;
+        let estimatedYield = 2.0;
+        let yieldInterval = null;
 
-        const mlResponse = await axios.post(ML_URL, {
-            N, P, K, temperature, humidity, ph, rainfall
-        });
+        const cachedData = mlCache.get(cacheKey);
 
-        const { crop, irrigation } = mlResponse.data;
+        if (cachedData) {
+            crop = cachedData.crop;
+            irrigation = cachedData.irrigation;
+            estimatedYield = cachedData.estimatedYield;
+            yieldInterval = cachedData.yieldInterval;
+        } else {
+            // Internal call to Python service running on port 5001
+            const ML_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict`;
+
+            const mlResponse = await axios.post(ML_URL, {
+                N, P, K, temperature, humidity, ph, rainfall
+            });
+
+            crop = mlResponse.data.crop;
+            irrigation = mlResponse.data.irrigation;
+
+            // Fetch ML Yield Prediction
+            const YIELD_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict_yield`;
+            try {
+                const yieldResponse = await axios.post(YIELD_URL, {
+                    crop, N, P, K, temperature, humidity, ph, rainfall
+                });
+                if (yieldResponse.data && yieldResponse.data.yield) {
+                    estimatedYield = yieldResponse.data.yield;
+                    yieldInterval = yieldResponse.data.interval || null;
+                }
+            } catch (yieldError) {
+                console.error('⚠️ Yield Prediction Error (falling back to default):', yieldError.message);
+            }
+
+            // Save to cache
+            mlCache.set(cacheKey, { crop, irrigation, estimatedYield, yieldInterval });
+        }
 
         // 1. Calculate Fertilizer Advice
         const requirements = cropRequirements[crop.toLowerCase()];
@@ -39,21 +77,6 @@ exports.getRecommendation = async (req, res) => {
             if (fertilizerAdvice.summary.length === 0) fertilizerAdvice.summary.push(`Soil nutrient levels are optimal for ${crop}.`);
         } else {
             fertilizerAdvice = { summary: ["General NPK balanced fertilizer recommended."] };
-        }
-
-        // 2. Fetch ML Yield Prediction
-        const YIELD_URL = `http://127.0.0.1:${ML_SERVICE_PORT}/api/predict_yield`;
-        let estimatedYield = 2.0; // fallback default
-
-        try {
-            const yieldResponse = await axios.post(YIELD_URL, {
-                crop, N, P, K, temperature, humidity, ph, rainfall
-            });
-            if (yieldResponse.data && yieldResponse.data.yield) {
-                estimatedYield = yieldResponse.data.yield;
-            }
-        } catch (yieldError) {
-            console.error('⚠️ Yield Prediction Error (falling back to default):', yieldError.message);
         }
 
         // 3. Market Analysis & LSTM Profitability Forecast
@@ -90,12 +113,14 @@ exports.getRecommendation = async (req, res) => {
         const estimatedRevenue = estimatedYield * predictedPrice;
 
         const newRecord = new Recommendation({
+            fieldName: fieldName || 'Unnamed Field',
             user: req.user._id,
             inputs: { N, P, K, temperature, humidity, ph, rainfall },
             prediction: {
                 crop,
                 irrigation,
                 yield: estimatedYield.toFixed(2), // Storing yield in the record
+                yieldInterval,
                 marketPrice: pricePerTon,
                 estimatedRevenue: Math.round(estimatedRevenue),
                 marketTrend
@@ -110,6 +135,7 @@ exports.getRecommendation = async (req, res) => {
             crop,
             irrigation,
             yield: estimatedYield.toFixed(2),
+            yieldInterval,
             market: {
                 pricePerTon,
                 predictedPrice,

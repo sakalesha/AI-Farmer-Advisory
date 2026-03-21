@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "dashboard": "ಬೆಳೆ ಸಲಹೆ",
+    "analytics": "ನನ್ನ ವಿಶ್ಲೇಷಣೆ",
+    "market": "ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು"
+  },
+  "dashboard": {
+    "title": "🌾 ಬೆಳೆ ಸಲಹೆ",
+    "subtitle": "ನಿಮ್ಮ ಮಣ್ಣಿನ ಡೇಟಾವನ್ನು ನಮೂದಿಸಿ — AI ನಿಮ್ಮ ಹೊಲಕ್ಕೆ ಉತ್ತಮ ಬೆಳೆಯನ್ನು ಶಿಫಾರಸು ಮಾಡುತ್ತದೆ."
+  },
+  "crops": {
+    "rice": "ಭತ್ತ", "maize": "ಮೆಕ್ಕೆಜೋಳ", "chickpea": "ಕಡಲೆ", "kidneybeans": "ರಾಜ್ಮಾ", "pigeonpeas": "ತೊಗರಿ", "mothbeans": "ಮಟ್ಕಿ", "mungbean": "ಹೆಸರು", "blackgram": "ಉದ್ದು", "lentil": "ಮಸೂರ್", "pomegranate": "ದಾಳಿಂಬೆ", "banana": "ಬಾಳೆಹಣ್ಣು", "mango": "ಮಾವು", "grapes": "ದ್ರಾಕ್ಷಿ", "watermelon": "ಕಲ್ಲಂಗಡಿ", "muskmelon": "ಕರ್ಬೂಜ", "apple": "ಸೇಬು", "orange": "ಕಿತ್ತಳೆ", "papaya": "ಪಪ್ಪಾಯಿ", "coconut": "ತೆಂಗು", "cotton": "ಹತ್ತಿ", "jute": "ಸೆಣಬು", "coffee": "ಕಾಫಿ"
+  },
+  "form": {
+    "nitrogen": "ಸಾರಜನಕ (N)", "phosphorus": "ರಂಜಕ (P)", "potassium": "ಪೊಟ್ಯಾಸಿಯಮ್ (K)",
+    "ph": "ಮಣ್ಣಿನ pH", "temperature": "ತಾಪಮಾನ", "humidity": "ತೇವಾಂಶ %", "rainfall": "ಮಳೆ (ಮಿಮೀ)",
+    "fieldName": "ಹೊಲದ ಹೆಸರು", "submit": "AI ಬೆಳೆ ಸಲಹೆ ಪಡೆಯಿರಿ", "analyzing": "ನಿಮ್ಮ ಮಣ್ಣಿನ ಡೇಟಾವನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ…"
+  },
+  "results": {
+    "yield": "ಅಂದಾಜು ಇಳುವರಿ", "price": "ಮಾರುಕಟ್ಟೆ ಬೆಲೆ", "revenue": "ಅಂದಾಜು ಆದಾಯ",
+    "irrigation": "ನೀರಾವರಿ ಅಗತ್ಯ"
+  }
+}

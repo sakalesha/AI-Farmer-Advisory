@@ -91,7 +91,7 @@ const HistoryLog = ({ history, onSelect, onCompareSelect, selectedItems }) => {
                                                 color: isSelected ? 'var(--emerald-400)' : 'var(--text-primary)',
                                                 transition: 'color 0.2s',
                                             }}>
-                                                {item.prediction.crop}
+                                                {item.fieldName && item.fieldName !== 'Unnamed Field' ? `${item.fieldName} (${item.prediction.crop})` : item.prediction.crop}
                                             </p>
                                         </div>
 

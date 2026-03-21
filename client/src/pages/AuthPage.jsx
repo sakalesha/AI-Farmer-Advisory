@@ -32,8 +32,8 @@ const AuthPage = () => {
         try {
             const endpoint = isLogin ? '/auth/login' : '/auth/register';
             const response = await axios.post(`${API_URL}${endpoint}`, formData);
-            const { token, data } = response.data;
-            login(data.user, token);
+            const { data } = response.data;
+            login(data.user);
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
         } finally { setLoading(false); }

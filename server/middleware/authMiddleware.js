@@ -6,7 +6,9 @@ exports.protect = async (req, res, next) => {
         let token;
 
         // 1) Getting token and check if it's there
-        if (
+        if (req.cookies && req.cookies.jwt) {
+            token = req.cookies.jwt;
+        } else if (
             req.headers.authorization &&
             req.headers.authorization.startsWith('Bearer')
         ) {

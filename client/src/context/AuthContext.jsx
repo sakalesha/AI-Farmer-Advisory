@@ -4,33 +4,33 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
-        if (savedUser && token) {
+        if (savedUser) {
             setUser(JSON.parse(savedUser));
         }
         setLoading(false);
-    }, [token]);
+    }, []);
 
-    const login = (userData, userToken) => {
-        localStorage.setItem('token', userToken);
+    const login = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
-        setToken(userToken);
         setUser(userData);
     };
 
-    const logout = () => {
-        localStorage.removeItem('token');
+    const logout = async () => {
+        try {
+            await fetch('http://localhost:5000/api/auth/logout'); // or abstract API path
+        } catch (err) {
+            console.error(err);
+        }
         localStorage.removeItem('user');
-        setToken(null);
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -102,9 +102,15 @@ def predict_yield():
         # Predict yield
         predicted_yield = yield_model.predict(input_array)[0]
         
+        # Calculate prediction intervals using individual trees
+        all_tree_predictions = [tree.predict(input_array)[0] for tree in yield_model.estimators_]
+        lower_bound = np.percentile(all_tree_predictions, 10)
+        upper_bound = np.percentile(all_tree_predictions, 90)
+        
         return jsonify({
             'status': 'success',
-            'yield': round(predicted_yield, 2)
+            'yield': round(predicted_yield, 2),
+            'interval': [round(lower_bound, 2), round(upper_bound, 2)]
         })
 
     except Exception as e:

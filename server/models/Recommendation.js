@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const recommendationSchema = new mongoose.Schema({
+    fieldName: {
+        type: String,
+        default: 'Unnamed Field'
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

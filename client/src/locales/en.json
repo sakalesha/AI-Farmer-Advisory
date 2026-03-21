@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "dashboard": "Crop Advisory",
+    "analytics": "My Analytics",
+    "market": "Market Prices"
+  },
+  "dashboard": {
+    "title": "🌾 Crop Advisory",
+    "subtitle": "Enter your soil data — AI will recommend the best crop for your field."
+  },
+  "crops": {
+    "rice": "Rice", "maize": "Maize", "chickpea": "Chickpea", "kidneybeans": "Kidney Beans", "pigeonpeas": "Pigeon Peas", "mothbeans": "Moth Beans", "mungbean": "Mung Bean", "blackgram": "Black Gram", "lentil": "Lentil", "pomegranate": "Pomegranate", "banana": "Banana", "mango": "Mango", "grapes": "Grapes", "watermelon": "Watermelon", "muskmelon": "Muskmelon", "apple": "Apple", "orange": "Orange", "papaya": "Papaya", "coconut": "Coconut", "cotton": "Cotton", "jute": "Jute", "coffee": "Coffee"
+  },
+  "form": {
+    "nitrogen": "Nitrogen (N)", "phosphorus": "Phosphorus (P)", "potassium": "Potassium (K)",
+    "ph": "Soil pH", "temperature": "Temperature", "humidity": "Humidity %", "rainfall": "Rainfall (mm)",
+    "fieldName": "Field Name", "submit": "Get AI Crop Recommendation", "analyzing": "Analysing your soil data…"
+  },
+  "results": {
+    "yield": "Estimated Yield", "price": "Market Price", "revenue": "Projected Revenue",
+    "irrigation": "Irrigation Need"
+  }
+}

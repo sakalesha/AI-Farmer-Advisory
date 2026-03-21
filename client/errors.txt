@@ -1,0 +1,8 @@
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\RecommendationResult.jsx:2 'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\RecommendationResult.jsx:26 'stagger' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\RecommendationResult.jsx:170 'Icon' is defined but never used.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\SectorComparison.jsx:20 Parsing error: Expecting Unicode escape sequence \uXXXX
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\SoilForm.jsx:137 'accentColor' is defined but never used.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\components\dashboard\SoilForm.jsx:195 'Icon' is defined but never used.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\pages\Dashboard.jsx:3 'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+C:\Users\ronad\OneDrive\Desktop\Projects\WEB + ML\AI Farmer Advisory\client\src\pages\Dashboard.jsx:69 React Hook useEffect has a missing dependency: 'fetchHistory'. Either include it or remove the dependency array.

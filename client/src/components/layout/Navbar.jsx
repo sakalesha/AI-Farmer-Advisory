@@ -1,7 +1,8 @@
 import React from 'react';
-import { Sprout, LayoutDashboard, BarChart3, LineChart, LogOut, User as UserIcon, Sun, Moon } from 'lucide-react';
+import { Sprout, LayoutDashboard, BarChart3, LineChart, LogOut, Sun, Moon, Languages, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const navItems = [
     { id: 'dashboard', label: 'Crop Advisory', icon: LayoutDashboard },
@@ -10,7 +11,16 @@ const navItems = [
 ];
 
 const Navbar = ({ user, logout, view, setView }) => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme, setTheme, toggleTheme } = useTheme();
+    const { t, i18n } = useTranslation();
+
+    const toggleFieldMode = () => {
+        setTheme(theme === 'field' ? 'light' : 'field');
+    };
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng);
+    };
 
     const initials = user?.fullName
         ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -86,6 +96,46 @@ const Navbar = ({ user, logout, view, setView }) => {
                     </div>
                 </button>
 
+                {/* Field Mode toggle */}
+                <button onClick={toggleFieldMode} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.625rem',
+                    padding: '0.6rem 0.875rem', marginBottom: '1.5rem',
+                    borderRadius: '0.75rem', width: '100%', cursor: 'pointer',
+                    background: theme === 'field' ? 'var(--text-primary)' : 'var(--bg-hover)', border: '1px solid var(--border-subtle)',
+                    transition: 'background 0.2s, border-color 0.2s',
+                }}>
+                    <div style={{ color: theme === 'field' ? '#fff' : 'var(--text-secondary)', display: 'flex' }}>
+                        <Eye style={{ width: 15, height: 15 }} />
+                    </div>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: theme === 'field' ? '#fff' : 'var(--text-secondary)', flex: 1 }}>
+                        Field Mode
+                    </span>
+                    <div style={{
+                        padding: '2px 6px', borderRadius: 4, background: theme === 'field' ? '#fff' : 'rgba(0,0,0,0.1)',
+                        color: theme === 'field' ? '#000' : 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 800
+                    }}>
+                        {theme === 'field' ? 'ON' : 'OFF'}
+                    </div>
+                </button>
+
+                {/* Language Selector */}
+                <div style={{ padding: '0 0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Languages style={{ width: 15, height: 15, color: 'var(--text-muted)' }} />
+                    <select
+                        value={i18n.language}
+                        onChange={(e) => changeLanguage(e.target.value)}
+                        style={{
+                            flex: 1, padding: '0.4rem', borderRadius: '0.5rem',
+                            background: 'var(--bg-hover)', border: '1px solid var(--border-subtle)',
+                            color: 'var(--text-secondary)', fontSize: '0.8125rem', fontWeight: 600, outline: 'none',
+                        }}
+                    >
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                </div>
+
                 {/* Nav label */}
                 <p className="section-label" style={{ padding: '0 0.75rem', marginBottom: '0.375rem' }}>Navigation</p>
 
@@ -95,7 +145,7 @@ const Navbar = ({ user, logout, view, setView }) => {
                         <button key={id} onClick={() => setView(id)}
                             className={`sidebar-nav-item ${view === id ? 'active' : ''}`}>
                             <Icon style={{ width: 16, height: 16, flexShrink: 0 }} />
-                            <span>{label}</span>
+                            <span>{t(`nav.${id}`)}</span>
                             {view === id && (
                                 <motion.div layoutId="nav-pill"
                                     style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald-400)', boxShadow: '0 0 8px var(--emerald-400)' }} />
@@ -146,9 +196,18 @@ const Navbar = ({ user, logout, view, setView }) => {
                         fontSize: '0.625rem', fontWeight: 700, transition: 'all 0.2s',
                     }}>
                         <Icon style={{ width: 20, height: 20 }} />
-                        <span>{label.split(' ')[0]}</span>
+                        <span>{t(`nav.${id}`).split(' ')[0]}</span>
                     </button>
                 ))}
+                <button onClick={toggleFieldMode} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    gap: '0.2rem', padding: '0.4rem 0.5rem', borderRadius: '0.625rem',
+                    cursor: 'pointer', border: 'none', background: theme === 'field' ? 'var(--text-primary)' : 'transparent',
+                    color: theme === 'field' ? '#fff' : 'var(--text-muted)', fontSize: '0.625rem', fontWeight: 700,
+                }}>
+                    <Eye style={{ width: 20, height: 20 }} />
+                    <span>Field</span>
+                </button>
                 <button onClick={toggleTheme} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     gap: '0.2rem', padding: '0.4rem 0.5rem', borderRadius: '0.625rem',
@@ -159,7 +218,7 @@ const Navbar = ({ user, logout, view, setView }) => {
                         ? <Sun style={{ width: 20, height: 20, color: '#fbbf24' }} />
                         : <Moon style={{ width: 20, height: 20, color: '#818cf8' }} />
                     }
-                    <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                    <span>{theme === 'dark' ? 'Light' : 'Theme'}</span>
                 </button>
                 <button onClick={logout} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',

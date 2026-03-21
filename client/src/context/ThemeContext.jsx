@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    const [theme, setTheme] = useState(() => localStorage.getItem('agro-theme') || 'dark');
+    const [theme, setTheme] = useState(() => localStorage.getItem('agro-theme') || 'light');
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -13,7 +13,7 @@ export const ThemeProvider = ({ children }) => {
     const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );

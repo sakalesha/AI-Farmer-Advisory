@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Farmer Advisory — UI/UX Redesign Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─── Root Design Tokens ─── */
+  :root {
+    --soil-950:  #120e0a;
+    --soil-900:  #1e1710;
+    --soil-800:  #2e2318;
+    --soil-700:  #4a3828;
+    --soil-500:  #7a5c3f;
+    --soil-300:  #c4a882;
+    --soil-100:  #f0e8db;
+    --soil-50:   #f8f4ee;
+
+    --canopy-900:#0f2410;
+    --canopy-800:#1a3d1c;
+    --canopy-600:#2d6b30;
+    --canopy-500:#3a8a3e;
+    --canopy-400:#52ab57;
+    --canopy-200:#a8d9ab;
+    --canopy-100:#d4efd5;
+    --canopy-50: #edf7ee;
+
+    --terra-700: #8b3a18;
+    --terra-500: #c4622d;
+    --terra-400: #d97c44;
+    --terra-200: #f0b896;
+    --terra-100: #fbe8d8;
+    --terra-50:  #fdf4ee;
+
+    --amber-500: #d4930a;
+    --amber-400: #e8a835;
+    --amber-100: #fdeec8;
+
+    --text-ink:    #1e1710;
+    --text-muted:  #6b5848;
+    --text-faint:  #a8927e;
+    --text-onDark: #f0e8db;
+
+    --surface-0:  #ffffff;
+    --surface-1:  #f8f4ee;
+    --surface-2:  #f0e8db;
+    --border-soft: rgba(74,56,40,.12);
+    --border-med:  rgba(74,56,40,.22);
+
+    --ff-display: 'Fraunces', Georgia, serif;
+    --ff-body:    'Outfit', -apple-system, sans-serif;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 28px;
+
+    --shadow-sm: 0 1px 3px rgba(30,23,16,.08), 0 1px 2px rgba(30,23,16,.04);
+    --shadow-md: 0 4px 12px rgba(30,23,16,.08), 0 2px 4px rgba(30,23,16,.05);
+    --shadow-lg: 0 16px 48px rgba(30,23,16,.10), 0 4px 12px rgba(30,23,16,.06);
+  }
+
+  /* ─── Base Reset ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--ff-body);
+    background: var(--surface-1);
+    color: var(--text-ink);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--canopy-100); color: var(--canopy-900); }
+
+  /* ─── Typography ─── */
+  h1, h2, h3, h4 { font-family: var(--ff-display); font-weight: 700; line-height: 1.2; }
+  h1 { font-size: clamp(2.4rem, 5vw, 4rem); }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.05rem; font-weight: 600; font-family: var(--ff-body); }
+  p { color: var(--text-muted); }
+  strong { color: var(--text-ink); font-weight: 600; }
+  a { color: var(--canopy-600); text-decoration: none; }
+
+  /* ─── Layout Utilities ─── */
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
+  .container--wide { max-width: 1360px; margin: 0 auto; padding: 0 2rem; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
+
+  /* ─── Report Cover ─── */
+  .cover {
+    background: var(--soil-900);
+    color: var(--text-onDark);
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 30%, rgba(61,138,62,.22) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(196,98,45,.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .cover-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .cover-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: var(--canopy-200);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .35rem .85rem;
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+  }
+  .cover h1 { color: var(--text-onDark); margin-bottom: 1.25rem; }
+  .cover h1 em { color: var(--canopy-400); font-style: normal; }
+  .cover-sub { color: rgba(240,232,219,.65); font-size: 1.05rem; line-height: 1.7; }
+  .cover-meta { display: flex; flex-direction: column; gap: 1.25rem; }
+  .cover-stat {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+  }
+  .cover-stat-val {
+    font-family: var(--ff-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-onDark);
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .cover-stat-val span { color: var(--canopy-400); }
+  .cover-stat-label { font-size: .8rem; color: rgba(240,232,219,.5); text-transform: uppercase; letter-spacing: .08em; }
+
+  /* ─── Section Styles ─── */
+  .section { padding: 80px 0; }
+  .section--alt { background: var(--surface-0); }
+  .section--dark { background: var(--soil-900); color: var(--text-onDark); }
+  .section--dark p { color: rgba(240,232,219,.65); }
+  .section--dark h2, .section--dark h3 { color: var(--text-onDark); }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--canopy-600);
+    margin-bottom: .85rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--canopy-500);
+    border-radius: 2px;
+  }
+  .section-title { margin-bottom: .6rem; }
+  .section-intro { font-size: 1.05rem; max-width: 620px; margin-bottom: 3rem; color: var(--text-muted); }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .card--elevated { box-shadow: var(--shadow-md); }
+  .card--dark {
+    background: rgba(255,255,255,.05);
+    border-color: rgba(255,255,255,.1);
+  }
+
+  /* ─── Issue Cards ─── */
+  .issue-card {
+    border-left: 3px solid var(--terra-500);
+    background: var(--terra-50);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 1.25rem 1.5rem;
+  }
+  .issue-card .issue-tag {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--terra-700);
+    margin-bottom: .4rem;
+  }
+  .issue-card h4 { color: var(--text-ink); margin-bottom: .4rem; }
+  .issue-card p { font-size: .9rem; color: var(--text-muted); }
+  .issue-card.priority--high { border-color: var(--terra-500); background: var(--terra-50); }
+  .issue-card.priority--med  { border-color: var(--amber-500); background: var(--amber-100); }
+  .issue-card.priority--low  { border-color: var(--canopy-500); background: var(--canopy-50); }
+  .issue-card.priority--med .issue-tag  { color: var(--amber-500); }
+  .issue-card.priority--low .issue-tag  { color: var(--canopy-600); }
+
+  /* ─── Recommendation Items ─── */
+  .rec-item {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .rec-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .rec-num {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--canopy-600);
+    color: #fff;
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: .1rem;
+  }
+  .rec-body h4 { color: var(--text-ink); margin-bottom: .3rem; }
+  .rec-body p  { font-size: .92rem; color: var(--text-muted); }
+  .rec-tag {
+    display: inline-block;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: .2rem .6rem;
+    border-radius: 99px;
+    margin-bottom: .4rem;
+  }
+  .rec-tag--ux  { background: var(--canopy-100); color: var(--canopy-800); }
+  .rec-tag--ui  { background: var(--amber-100);  color: var(--soil-800); }
+  .rec-tag--new { background: var(--terra-100);  color: var(--terra-700); }
+  .rec-tag--a11y{ background: #e8e0f4; color: #3a2a6e; }
+
+  /* ─── Comparison Table ─── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem;
+  }
+  .compare-table thead th {
+    text-align: left;
+    padding: .75rem 1rem;
+    background: var(--surface-1);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid var(--border-med);
+  }
+  .compare-table tbody td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: top;
+    color: var(--text-muted);
+  }
+  .compare-table tbody td:first-child { font-weight: 500; color: var(--text-ink); }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .72rem;
+    font-weight: 600;
+    padding: .2rem .6rem;
+    border-radius: 99px;
+  }
+  .badge--current { background: var(--terra-100); color: var(--terra-700); }
+  .badge--new     { background: var(--canopy-100); color: var(--canopy-800); }
+
+  /* ─── Color Palette Demo ─── */
+  .palette-grid { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.5rem 0; }
+  .swatch {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .swatch-label {
+    font-size: .68rem;
+    color: var(--text-faint);
+    margin-top: .3rem;
+    text-align: center;
+  }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* ─── Mockup Section ─── */
+  .mockup-frame {
+    background: var(--soil-950);
+    border-radius: var(--radius-xl);
+    padding: 2px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .mockup-inner {
+    border-radius: calc(var(--radius-xl) - 2px);
+    overflow: hidden;
+    display: flex;
+    height: 680px;
+    font-family: var(--ff-body);
+  }
+
+  /* ─── MOCKUP: Sidebar ─── */
+  .mk-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--soil-900);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    border-right: 1px solid rgba(255,255,255,.06);
+  }
+  .mk-logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .5rem .75rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    margin-bottom: .5rem;
+  }
+  .mk-logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--canopy-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .mk-logo-text {
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--text-onDark);
+    line-height: 1.1;
+  }
+  .mk-logo-sub { font-size: .65rem; color: rgba(240,232,219,.4); font-family: var(--ff-body); font-weight: 400; }
+  .mk-nav-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem .85rem;
+    border-radius: var(--radius-md);
+    color: rgba(240,232,219,.5);
+    font-size: .82rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .mk-nav-item:hover { background: rgba(255,255,255,.06); color: rgba(240,232,219,.85); }
+  .mk-nav-item.active {
+    background: rgba(61,138,62,.18);
+    color: var(--canopy-200);
+    font-weight: 500;
+    border-left: 2px solid var(--canopy-500);
+    margin-left: -1px;
+  }
+  .mk-nav-icon { font-size: 15px; opacity: .9; width: 18px; text-align: center; }
+  .mk-nav-label { margin-top: 1rem; padding: .35rem .85rem; font-size: .66rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(240,232,219,.25); }
+  .mk-profile {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem;
+    background: rgba(255,255,255,.04);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .mk-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--canopy-500), var(--canopy-800));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .mk-profile-name { font-size: .8rem; font-weight: 500; color: rgba(240,232,219,.8); line-height: 1.1; }
+  .mk-profile-role { font-size: .68rem; color: rgba(240,232,219,.35); }
+
+  /* ─── MOCKUP: Main Panel ─── */
+  .mk-main {
+    flex: 1;
+    background: #f5f1eb;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .mk-topbar {
+    background: rgba(245,241,235,.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(74,56,40,.1);
+    padding: .9rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .mk-greeting { font-family: var(--ff-display); font-weight: 700; font-size: 1rem; color: var(--soil-800); line-height: 1.1; }
+  .mk-greeting-sub { font-size: .75rem; color: var(--soil-500); font-weight: 400; font-family: var(--ff-body); }
+  .mk-topbar-right { display: flex; align-items: center; gap: .75rem; }
+  .mk-badge {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .85rem;
+    border-radius: 99px;
+    font-size: .72rem;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .mk-badge--field { background: #fff9f0; border-color: rgba(212,147,10,.3); color: var(--amber-500); }
+  .mk-badge--live  { background: var(--canopy-50); border-color: rgba(45,107,48,.2); color: var(--canopy-600); }
+  .mk-weather-pill {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .75rem;
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: 99px;
+    font-size: .75rem;
+    color: var(--soil-500);
+  }
+  .mk-content { padding: 1.5rem 1.75rem; flex: 1; }
+
+  /* ─── MOCKUP: Stat Pills ─── */
+  .mk-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin-bottom: 1.5rem; }
+  .mk-stat-card {
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: .9rem 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .mk-stat-val { font-size: 1.5rem; font-weight: 700; font-family: var(--ff-display); color: var(--soil-800); line-height: 1; }
+  .mk-stat-val small { font-size: .75rem; color: var(--soil-500); font-family: var(--ff-body); }
+  .mk-stat-label { font-size: .7rem; color: var(--soil-500); margin-top: .2rem; text-transform: uppercase; letter-spacing: .06em; }
+  .mk-stat-trend { font-size: .68rem; margin-top: .4rem; font-weight: 500; }
+  .mk-stat-trend.up   { color: var(--canopy-600); }
+  .mk-stat-trend.down { color: var(--terra-500); }
+
+  /* ─── MOCKUP: Two-col layout ─── */
+  .mk-cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; flex: 1; }
+
+  /* ─── MOCKUP: Form Card ─── */
+  .mk-form-card {
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .mk-card-header {
+    padding: 1rem 1.25rem .75rem;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mk-card-title { font-size: .85rem; font-weight: 600; color: var(--soil-800); }
+  .mk-card-sub { font-size: .7rem; color: var(--soil-500); }
+  .mk-card-body { padding: 1rem 1.25rem; }
+
+  .mk-field-group { margin-bottom: .85rem; }
+  .mk-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .mk-field-label {
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--soil-500);
+    margin-bottom: .3rem;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+  .mk-tooltip-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--canopy-100);
+    color: var(--canopy-700);
+    font-size: .6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    cursor: default;
+  }
+  .mk-input {
+    width: 100%;
+    padding: .5rem .75rem;
+    background: #faf8f5;
+    border: 1px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    font-size: .82rem;
+    color: var(--soil-800);
+    font-family: var(--ff-body);
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  .mk-input:focus { border-color: var(--canopy-500); box-shadow: 0 0 0 3px rgba(45,107,48,.1); }
+  .mk-input::placeholder { color: rgba(74,56,40,.3); font-size: .78rem; }
+
+  .mk-range-row { display: flex; align-items: center; gap: .6rem; }
+  .mk-range { flex: 1; -webkit-appearance: none; height: 3px; border-radius: 99px; background: linear-gradient(to right, var(--canopy-500) 65%, var(--border-med) 65%); outline: none; }
+  .mk-range::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--canopy-600); box-shadow: 0 0 0 3px #fff, 0 0 0 4px var(--canopy-500); cursor: pointer; }
+  .mk-range-val { font-size: .8rem; font-weight: 600; color: var(--soil-800); min-width: 28px; text-align: right; }
+
+  .mk-section-divider { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--soil-300); margin: .75rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border-soft); }
+
+  .mk-sync-btn {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .55rem .85rem;
+    background: var(--canopy-50);
+    border: 1px solid rgba(45,107,48,.25);
+    border-radius: var(--radius-sm);
+    font-size: .78rem;
+    font-weight: 500;
+    color: var(--canopy-700);
+    cursor: pointer;
+    margin-bottom: .75rem;
+    transition: all .15s;
+  }
+  .mk-sync-btn:hover { background: var(--canopy-100); }
+  .mk-sync-icon { font-size: 14px; }
+
+  .mk-submit-btn {
+    width: 100%;
+    padding: .7rem 1rem;
+    background: var(--canopy-600);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--ff-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    transition: background .15s, transform .1s;
+    margin-top: .5rem;
+  }
+  .mk-submit-btn:hover { background: var(--canopy-800); transform: translateY(-1px); }
+
+  /* ─── MOCKUP: Result Card ─── */
+  .mk-result-card {
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+  }
+  .mk-result-hero {
+    background: linear-gradient(135deg, var(--canopy-900), var(--canopy-700));
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .mk-result-hero::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .mk-result-label { font-size: .66rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--canopy-300); margin-bottom: .3rem; }
+  .mk-result-crop { font-family: var(--ff-display); font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1; margin-bottom: .3rem; }
+  .mk-result-conf { display: flex; align-items: center; gap: .5rem; }
+  .mk-conf-bar { flex: 1; height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; max-width: 80px; }
+  .mk-conf-fill { height: 100%; width: 98%; background: var(--canopy-400); border-radius: 2px; }
+  .mk-conf-text { font-size: .72rem; color: var(--canopy-200); }
+
+  .mk-result-body { padding: 1rem 1.25rem; flex: 1; }
+  .mk-result-section { margin-bottom: .9rem; }
+  .mk-result-section-title { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--soil-400); margin-bottom: .5rem; }
+
+  .mk-nutrient-row { display: flex; gap: .5rem; margin-bottom: .4rem; }
+  .mk-nutrient {
+    flex: 1;
+    padding: .4rem .6rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-size: .7rem;
+  }
+  .mk-nutrient-label { font-weight: 600; margin-bottom: .15rem; }
+  .mk-nutrient-val { font-size: .85rem; font-weight: 700; line-height: 1; }
+  .mk-nutrient-unit { font-size: .6rem; opacity: .7; }
+  .mk-nut-n { background: var(--canopy-50); color: var(--canopy-800); }
+  .mk-nut-p { background: var(--amber-100); color: var(--soil-700); }
+  .mk-nut-k { background: var(--terra-100); color: var(--terra-700); }
+
+  .mk-advisory-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .45rem 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: .78rem;
+  }
+  .mk-advisory-row:last-child { border-bottom: none; }
+  .mk-advisory-key { color: var(--soil-500); }
+  .mk-advisory-val { font-weight: 600; color: var(--soil-800); }
+  .mk-advisory-val.good { color: var(--canopy-600); }
+  .mk-advisory-val.warn { color: var(--amber-500); }
+
+  .mk-profit-card {
+    background: var(--terra-50);
+    border: 1px solid rgba(196,98,45,.15);
+    border-radius: var(--radius-md);
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mk-profit-label { font-size: .72rem; color: var(--terra-700); font-weight: 500; }
+  .mk-profit-val { font-family: var(--ff-display); font-size: 1.25rem; font-weight: 700; color: var(--terra-700); }
+
+  /* ─── MOCKUP: History List ─── */
+  .mk-history { display: flex; flex-direction: column; gap: .5rem; margin-top: .75rem; }
+  .mk-history-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem .85rem;
+    background: var(--surface-0);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    font-size: .78rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .mk-history-item:hover { border-color: var(--canopy-400); background: var(--canopy-50); }
+  .mk-history-icon { font-size: 18px; }
+  .mk-history-name { font-weight: 600; color: var(--soil-800); }
+  .mk-history-date { color: var(--soil-400); font-size: .68rem; }
+  .mk-history-badge {
+    margin-left: auto;
+    padding: .15rem .5rem;
+    border-radius: 99px;
+    font-size: .65rem;
+    font-weight: 600;
+  }
+  .mk-history-badge.high { background: var(--canopy-100); color: var(--canopy-700); }
+  .mk-history-badge.med  { background: var(--amber-100); color: var(--soil-600); }
+
+  /* ─── Design System Section ─── */
+  .ds-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .type-specimen { background: var(--surface-0); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: 1.75rem; }
+  .specimen-display {
+    font-family: var(--ff-display);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--soil-800);
+    line-height: 1;
+    margin-bottom: .5rem;
+  }
+  .specimen-italic { font-style: italic; color: var(--canopy-600); }
+  .specimen-body { font-size: 1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: .75rem; }
+  .specimen-mono { font-family: 'Courier New', monospace; font-size: .85rem; background: var(--surface-1); padding: .2rem .5rem; border-radius: var(--radius-sm); color: var(--soil-600); }
+
+  /* ─── Footer ─── */
+  .report-footer {
+    background: var(--soil-950);
+    color: rgba(240,232,219,.4);
+    text-align: center;
+    padding: 2.5rem;
+    font-size: .82rem;
+  }
+  .report-footer a { color: var(--canopy-400); }
+
+  /* ─── Tooltip on hover ─── */
+  .mk-tooltip-dot { position: relative; }
+  .mk-tooltip-dot:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--soil-800);
+    color: var(--text-onDark);
+    font-size: .65rem;
+    font-weight: 400;
+    padding: .35rem .65rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .mk-tooltip-dot:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--soil-800);
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* ─── Scroll animations ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp .55s ease both; }
+  .fade-up:nth-child(2) { animation-delay: .1s; }
+  .fade-up:nth-child(3) { animation-delay: .2s; }
+  .fade-up:nth-child(4) { animation-delay: .3s; }
+
+  /* ─── Tab toggle for mockup views ─── */
+  .tab-row { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .tab-btn {
+    padding: .45rem 1.1rem;
+    border: 1px solid var(--border-med);
+    background: var(--surface-0);
+    border-radius: 99px;
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+    font-family: var(--ff-body);
+  }
+  .tab-btn.active {
+    background: var(--canopy-600);
+    border-color: var(--canopy-600);
+    color: #fff;
+  }
+
+  /* Mobile note */
+  .mk-mobile-banner {
+    background: rgba(45,107,48,.08);
+    border: 1px solid rgba(45,107,48,.15);
+    border-radius: var(--radius-md);
+    padding: .75rem 1rem;
+    font-size: .8rem;
+    color: var(--canopy-700);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* High contrast preview */
+  .hc-card {
+    background: #000;
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 2px solid #fff;
+    font-family: var(--ff-body);
+  }
+  .hc-card h3 { color: #fff; font-family: var(--ff-body); font-size: 1rem; }
+  .hc-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid rgba(255,255,255,.2); font-size: .85rem; }
+  .hc-row:last-child { border-bottom: none; }
+  .hc-key { color: rgba(255,255,255,.65); }
+  .hc-val { color: #fff; font-weight: 700; }
+  .hc-result {
+    background: #fff;
+    color: #000;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    margin-top: .85rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .cover-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .cover-meta { flex-direction: row; flex-wrap: wrap; }
+    .cover-stat { flex: 1; min-width: 140px; }
+    .ds-section { grid-template-columns: 1fr; }
+    .mockup-inner { flex-direction: column; height: auto; }
+    .mk-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; height: auto; padding: .75rem; }
+    .mk-stats { grid-template-columns: repeat(2, 1fr); }
+    .mk-cols  { grid-template-columns: 1fr; }
+    .compare-table { font-size: .78rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ COVER ══════════════ -->
+<header class="cover">
+  <div class="container">
+    <div class="cover-grid">
+      <div>
+        <span class="cover-tag">🌿 UI/UX Redesign Report · March 2026</span>
+        <h1>AI Farmer Advisory — <em>Terracotta & Canopy</em> Redesign</h1>
+        <p class="cover-sub" style="color:rgba(240,232,219,.6);margin-top:1rem;">
+          A comprehensive UX audit and premium interface redesign proposal for the AI Farmer Advisory platform — prioritising field usability, trust, and contextual intelligence.
+        </p>
+        <div style="margin-top:1.75rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(61,138,62,.18);border:1px solid rgba(61,138,62,.3);color:var(--canopy-200);font-size:.76rem;font-weight:600;padding:.35rem .9rem;border-radius:99px;">UX Analysis</span>
+          <span style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(196,98,45,.18);border:1px solid rgba(196,98,45,.3);color:var(--terra-200);font-size:.76rem;font-weight:600;padding:.35rem .9rem;border-radius:99px;">UI Redesign</span>
+          <span style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(240,232,219,.7);font-size:.76rem;font-weight:600;padding:.35rem .9rem;border-radius:99px;">Interactive Mockup</span>
+        </div>
+      </div>
+      <div class="cover-meta">
+        <div class="cover-stat">
+          <div class="cover-stat-val"><span>4</span> Phases</div>
+          <div class="cover-stat-label">completed development cycles</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-val">~<span>99%</span></div>
+          <div class="cover-stat-label">model accuracy · 22 crop classes</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-val"><span>7</span> Issues</div>
+          <div class="cover-stat-label">identified UX gaps with solutions</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-val"><span>12</span> New</div>
+          <div class="cover-stat-label">design recommendations delivered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ NAV ANCHOR ══════════════ -->
+<nav style="background:var(--surface-0);border-bottom:1px solid var(--border-soft);position:sticky;top:0;z-index:50;">
+  <div class="container" style="display:flex;gap:.25rem;overflow-x:auto;padding-top:.7rem;padding-bottom:.7rem;">
+    <a href="#section1" style="white-space:nowrap;padding:.35rem .85rem;border-radius:99px;font-size:.78rem;font-weight:500;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseout="this.style.background='';this.style.color='var(--text-muted)'">01 · Overview</a>
+    <a href="#section2" style="white-space:nowrap;padding:.35rem .85rem;border-radius:99px;font-size:.78rem;font-weight:500;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseout="this.style.background='';this.style.color='var(--text-muted)'">02 · UX Issues</a>
+    <a href="#section3" style="white-space:nowrap;padding:.35rem .85rem;border-radius:99px;font-size:.78rem;font-weight:500;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseout="this.style.background='';this.style.color='var(--text-muted)'">03 · Recommendations</a>
+    <a href="#section4" style="white-space:nowrap;padding:.35rem .85rem;border-radius:99px;font-size:.78rem;font-weight:500;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseout="this.style.background='';this.style.color='var(--text-muted)'">04 · Design System</a>
+    <a href="#section5" style="white-space:nowrap;padding:.35rem .85rem;border-radius:99px;font-size:.78rem;font-weight:500;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.background='var(--canopy-50)';this.style.color='var(--canopy-700)'" onmouseout="this.style.background='';this.style.color='var(--text-muted)'">05 · Mockup</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════ SECTION 1 · OVERVIEW ══════════════ -->
+<section class="section" id="section1">
+  <div class="container">
+    <span class="section-label">Section 01</span>
+    <h2 class="section-title">Overview of the Current Interface</h2>
+    <p class="section-intro">The existing AI Farmer Advisory dashboard is a technically ambitious and aesthetically polished product — here we document what it does well before proposing where it can grow.</p>
+
+    <div class="grid-2">
+      <div class="card card--elevated fade-up">
+        <div style="width:40px;height:40px;background:var(--canopy-100);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:1rem;">🌿</div>
+        <h4>Premium Glassmorphism Design</h4>
+        <p style="margin-top:.4rem;font-size:.9rem;">The current UI uses <code style="background:var(--surface-1);padding:.1rem .35rem;border-radius:4px;font-size:.82rem;">backdrop-filter: blur(20px)</code> on all cards alongside a three-token accent system (Emerald / Indigo / Gold). The result is a visually sophisticated product that stands apart from generic agricultural tools.</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <span style="background:var(--canopy-100);color:var(--canopy-800);padding:.25rem .65rem;border-radius:99px;font-size:.7rem;font-weight:600;">Dark Mode Default</span>
+          <span style="background:var(--surface-1);border:1px solid var(--border-soft);color:var(--text-muted);padding:.25rem .65rem;border-radius:99px;font-size:.7rem;font-weight:600;">Light Mode Toggle</span>
+          <span style="background:var(--amber-100);color:var(--soil-700);padding:.25rem .65rem;border-radius:99px;font-size:.7rem;font-weight:600;">Framer Motion</span>
+        </div>
+      </div>
+
+      <div class="card card--elevated fade-up">
+        <div style="width:40px;height:40px;background:var(--terra-100);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:1rem;">📱</div>
+        <h4>Responsive Navigation Strategy</h4>
+        <p style="margin-top:.4rem;font-size:.9rem;">A fixed sidebar on desktop transitions to a fixed bottom navigation bar on screens under 1024px — a best-in-class mobile pattern that enables one-handed operation for farmers in the field. The layout shift is clean and intentional.</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <span style="background:var(--canopy-100);color:var(--canopy-800);padding:.25rem .65rem;border-radius:99px;font-size:.7rem;font-weight:600;">Desktop Sidebar</span>
+          <span style="background:var(--canopy-100);color:var(--canopy-800);padding:.25rem .65rem;border-radius:99px;font-size:.7rem;font-weight:600;">Mobile Bottom-Nav</span>
+        </div>
+      </div>
+
+      <div class="card card--elevated fade-up">
+        <div style="width:40px;height:40px;background:var(--amber-100);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:1rem;">⚡</div>
+        <h4>Smart Data Entry &amp; Live Sync</h4>
+        <p style="margin-top:.4rem;font-size:.9rem;">The "Sync Live Weather" button uses browser Geolocation + OpenWeatherMap API to auto-fill temperature, humidity, and rainfall — reducing the 7-parameter form to just 4 manual entries in most cases. Skeleton loaders and animated vitality gauges make latency feel productive.</p>
+      </div>
+
+      <div class="card card--elevated fade-up">
+        <div style="width:40px;height:40px;background:#e8e0f4;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:1rem;">🤖</div>
+        <h4>End-to-End Advisory Engine</h4>
+        <p style="margin-top:.4rem;font-size:.9rem;">From a single form submit, the UI surfaces crop classification (99% accuracy), yield prediction (R² = 0.9973), NPK deficit calculations, irrigation level, and LSTM price forecasting — all in one unified recommendation result card. This holistic view is a strong differentiator.</p>
+      </div>
+    </div>
+
+    <!-- Architecture snapshot -->
+    <div class="card" style="margin-top:2rem;overflow:hidden;">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-soft);">
+        <h4>Current Technology Stack at a Glance</h4>
+        <p style="font-size:.85rem;margin-top:.2rem;">How the three-tier microservices architecture maps onto the UI.</p>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="compare-table" style="min-width:560px;">
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Technology</th>
+              <th>UI Impact</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Frontend</td><td>React · Vite · Tailwind CSS v4 · Framer Motion · Recharts</td><td>Glassmorphism cards, animated page transitions, area charts, heatmaps</td><td><span class="badge badge--current">✓ Shipped</span></td></tr>
+            <tr><td>Backend</td><td>Node.js · Express · MongoDB · JWT · bcryptjs</td><td>Authenticated history log, personalised greeting, recommendation persistence</td><td><span class="badge badge--current">✓ Shipped</span></td></tr>
+            <tr><td>ML Service</td><td>Python · Flask · scikit-learn · Keras LSTM</td><td>Crop result card, yield gauge, price trend indicator, confidence score</td><td><span class="badge badge--current">✓ Shipped</span></td></tr>
+            <tr><td>Infrastructure</td><td>Docker · Render.com · OpenWeatherMap API</td><td>Live weather sync button, fast cold-start (skeleton loaders)</td><td><span class="badge badge--current">✓ Deployed</span></td></tr>
+            <tr><td>Planned</td><td>PWA Service Workers · i18next · ESP32 IoT · YOLO CV</td><td>Offline support, multilingual UI, sensor dashboard, pest alert cards</td><td><span class="badge badge--new">Roadmap</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 2 · UX ISSUES ══════════════ -->
+<section class="section section--alt" id="section2">
+  <div class="container">
+    <span class="section-label">Section 02</span>
+    <h2 class="section-title">Analysis of User Experience Issues</h2>
+    <p class="section-intro">Seven friction points were identified across usability, accessibility, and agricultural domain relevance. Each is rated by impact priority.</p>
+
+    <div style="display:grid;gap:1rem;">
+
+      <div class="issue-card priority--high">
+        <div class="issue-tag">🔴 High Priority · Accessibility</div>
+        <h4>Glassmorphism Fails in Sunlight</h4>
+        <p>Low-opacity frosted cards with grey-on-dark text — while stunning indoors — become nearly unreadable in direct sunlight (5,000+ lux). The primary use context for this app is a farmer standing in a field. There is no "outdoor" or high-contrast mode. WCAG AA requires a 4.5:1 contrast ratio; semi-transparent overlays on image backgrounds routinely fall below 2:1.</p>
+      </div>
+
+      <div class="issue-card priority--high">
+        <div class="issue-tag">🔴 High Priority · Learnability</div>
+        <h4>No Contextual Guidance for Agricultural Parameters</h4>
+        <p>The form accepts N, P, K (nitrogen, phosphorus, potassium), pH, temperature, humidity, and rainfall with no inline explanation of what values are valid or what they mean. A smallholder farmer without formal agronomic training has no reference. The UI should include collapsible tooltips — e.g., "Ideal paddy pH: 5.5–6.5 · Your input: 7.2" — not generic numeric-only fields.</p>
+      </div>
+
+      <div class="issue-card priority--high">
+        <div class="issue-tag">🔴 High Priority · Error Prevention</div>
+        <h4>Silent Input Rejection Without Feedback</h4>
+        <p>The <code style="font-size:.82rem;">handleInputChange</code> filter silently ignores non-numeric keystrokes. Users — especially those unfamiliar with numeric-only fields — may become confused when typing letters produces no visible output. A brief inline validation message ("Numbers only — e.g. 40") with a yellow highlight should immediately explain the constraint.</p>
+      </div>
+
+      <div class="issue-card priority--med">
+        <div class="issue-tag">🟡 Medium Priority · Data Literacy</div>
+        <h4>Analytics Dashboard Overloads on Load</h4>
+        <p>The Yield Trend Chart, Profit Heatmap, and Sector Comparison tool all load simultaneously, presenting dense data to users who may have only visited the dashboard for a single crop recommendation. Progressive disclosure — show charts collapsed by default, expanding on tap — would improve initial cognitive load, especially on small screens with low bandwidth.</p>
+      </div>
+
+      <div class="issue-card priority--med">
+        <div class="issue-tag">🟡 Medium Priority · Trust</div>
+        <h4>Confidence Score is Hidden in the ML Output</h4>
+        <p>The ML model returns a confidence percentage alongside the predicted crop, but the current UI does not visibly surface this to users. For farmers making real planting decisions, seeing "Rice · 98.4% confidence" vs "Maize · 61.2% confidence" is a critical trust and decision-support signal. Hiding it removes the primary mechanism for appropriate caution.</p>
+      </div>
+
+      <div class="issue-card priority--med">
+        <div class="issue-tag">🟡 Medium Priority · Visual Hierarchy</div>
+        <h4>Market Price and Yield Data Lack Actionable Context</h4>
+        <p>The current Market Prices grid displays raw numbers but does not contextualise them for the farmer's specific scenario. After receiving a "Grow Rice" recommendation, the farmer sees the rice price — but not a computed "If you grow 1 hectare at your yield estimate, projected revenue = ₹X." The data exists in the backend; it simply isn't surfaced as a clear profit estimate tied to the recommendation.</p>
+      </div>
+
+      <div class="issue-card priority--low">
+        <div class="issue-tag">🟢 Lower Priority · Internationalisation</div>
+        <h4>English-Only UI Limits Rural Accessibility</h4>
+        <p>The target audience includes Indian smallholder farmers, a significant portion of whom are more comfortable in Hindi or Kannada. The system prompt mentions multilingual support as future work, but even a simple language toggle with partial translations for the most-used views (form labels, crop names, advisory output) would substantially widen the addressable user base.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 3 · RECOMMENDATIONS ══════════════ -->
+<section class="section" id="section3">
+  <div class="container">
+    <span class="section-label">Section 03</span>
+    <h2 class="section-title">Recommendations for the New UI Design</h2>
+    <p class="section-intro">Twelve targeted design changes, each mapped to a specific UX issue, organised by implementation complexity.</p>
+
+    <div class="card" style="margin-bottom:2rem;">
+      <div class="rec-item">
+        <div class="rec-num">1</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--a11y">Accessibility</span>
+          <h4>Introduce a "Field Mode" High-Contrast Toggle</h4>
+          <p>Add a dedicated toggle (accessible from the top navigation bar with one tap) that switches the entire interface to a field-optimised high-contrast theme: pure white background, deep soil-black text (#1e1710), no glassmorphism, no blur effects, minimum 7:1 contrast ratios throughout. This mode should persist in localStorage and activate automatically when ambient light is detected via the Screen Luminance API (progressive enhancement). <strong>Estimated WCAG level upgrade: AA → AAA.</strong></p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">2</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ux">UX</span>
+          <h4>Replace Glassmorphism Cards with "Warm Editorial" Surface Cards</h4>
+          <p>Shift the design language from dark-mode glassmorphism to a warm, light-first editorial aesthetic: cream off-white backgrounds (<code style="font-size:.82rem;">#f8f4ee</code>), soil-brown text, forest-green accents, and terracotta call-to-actions. This palette reads clearly indoors and outdoors, reduces eye strain in prolonged use, and — critically — resonates visually with the agricultural domain rather than a generic fintech aesthetic. Dark mode remains available as a preference toggle, not the default.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">3</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ux">UX</span>
+          <h4>Attach Contextual Tooltips to All Soil Parameters</h4>
+          <p>Add a small <strong>ⓘ</strong> badge next to each form field label. On hover (desktop) or tap (mobile), a compact tooltip expands showing: the parameter's agronomic purpose, the typical range for this region, and the ideal range for the currently selected crop (if one has been recommended). For example: "Potassium (K) · Your value: 42 kg/ha · Ideal for Rice: 35–60 kg/ha ✓ Normal." This transforms the form from a data-collection box into an educational instrument — especially valuable for first-time users.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">4</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ui">UI</span>
+          <h4>Surface ML Confidence Score Prominently in the Result Card</h4>
+          <p>Display the model's confidence percentage as a visual progress bar directly beneath the recommended crop name in the result hero — e.g., a slim green bar labelled "98.4% confidence." For predictions below 75%, replace the green bar with an amber one and append an advisory note: "Consider consulting a local agronomist — multiple crops suit your soil profile." This makes the AI's uncertainty legible and trustworthy rather than hiding it.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">5</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--new">New Feature</span>
+          <h4>Add Inline Form Validation with Contextual Rejection Messages</h4>
+          <p>Replace silent input filtering with visible feedback. When a non-numeric character is typed, a brief yellow banner appears: "Numbers only — enter your soil's nitrogen content in kg/ha." When a value is out of range (e.g., pH 14), the field border turns amber and a message reads "pH must be between 0–14 (typical soil: 3.5–9.5)." On successful input, the field border flashes green for 400ms — a micro-interaction that acknowledges valid data without requiring explicit validation submission.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">6</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--new">New Feature</span>
+          <h4>Introduce a "Projected Profit" Summary Card</h4>
+          <p>Immediately below the recommendation result, display a computed profit card: "If you cultivate 1 hectare of Rice at the predicted yield (4.2 T/Ha) and today's market price (₹18,450/quintal), estimated revenue = ₹77,490." This connects the ML output to a real financial outcome in one glance — addressing the "market blindness" problem stated in the project brief. The calculation is already possible from existing backend data; it only requires a frontend assembly step.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">7</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ux">UX</span>
+          <h4>Collapse Analytics Dashboard Behind Progressive Disclosure</h4>
+          <p>Replace always-visible Recharts components with expandable sections. The default state shows a one-line summary per chart: "Yield Trend: +12% over last 4 seasons ↗ — tap to view chart." Expanding reveals the full interactive visualisation. This reduces initial page weight by ~60%, speeds up mobile load, and prevents data overload for users who only need a quick crop recommendation.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">8</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ui">UI</span>
+          <h4>Redesign the Recommendation Result Card as a "Field Advisor Report"</h4>
+          <p>Restructure the result card into clearly labeled sections: (1) Recommended Crop with confidence bar, (2) Fertilizer Plan — NPK deficit table with actionable dosage, (3) Irrigation Level with a visual gauge, (4) Yield Estimate with R² note, (5) Projected Profit. Add a "Download as PDF" button (using jsPDF) and a "Share via WhatsApp" deeplink. Farmers in rural India frequently share crop advice with family members via WhatsApp — this turns the result card into a shareable advisory document.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">9</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--new">New Feature</span>
+          <h4>Introduce a "Compare Two Fields" Side-by-Side View</h4>
+          <p>Extend the existing "Compare Scenarios" sticky panel into a full split-view mode. After generating two recommendations, a "Compare" button opens a side-by-side layout showing both recommendations with colour-coded deltas: red if the new recommendation underperforms, green if it outperforms. This is especially useful for farmers with two adjacent plots with different soil profiles.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">10</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--a11y">Accessibility</span>
+          <h4>Add Voice Input Support for Soil Parameters</h4>
+          <p>Integrate the Web Speech API as a microphone button beside the form. Farmers working with dirty or wet hands cannot always type accurately on a mobile screen. A voice prompt — "Say your nitrogen value" — parsed via speech recognition and auto-filled into the correct field — would dramatically improve field-use accessibility. Fallback gracefully to manual input if the API is unavailable.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">11</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--new">New Feature</span>
+          <h4>Add a Persistent "Last Recommendation" Banner for Return Visits</h4>
+          <p>When an authenticated user returns to the dashboard, show a compact persistent banner at the top: "Your last recommendation was <strong>Rice</strong> on 14 March — harvest window: June–July. View full report →." This contextualises the session, encourages continuity, and makes the platform feel like a long-term agricultural partner rather than a one-shot calculator.</p>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num">12</div>
+        <div class="rec-body">
+          <span class="rec-tag rec-tag--ui">UI</span>
+          <h4>Add a Language Selector with Priority Hindi and Kannada Support</h4>
+          <p>Add a flag/language picker to the top navigation. Even translating only the most-used strings — form labels, crop names, advisory output headers, and the navigation menu — using i18next would make the app meaningfully more accessible to farmers in Karnataka and Hindi-speaking states. Machine-translated first pass, manually corrected by an agronomist reviewer, is a practical starting approach.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 4 · DESIGN SYSTEM ══════════════ -->
+<section class="section section--alt" id="section4">
+  <div class="container">
+    <span class="section-label">Section 04</span>
+    <h2 class="section-title">New Design System — Terracotta &amp; Canopy</h2>
+    <p class="section-intro">A new visual language inspired by fertile soil, forest canopy, and harvest — replacing the techno-dark glassmorphism with warm editorial clarity.</p>
+
+    <div class="ds-section">
+      <div>
+        <h3 style="margin-bottom:1.25rem;">Colour Palette</h3>
+
+        <p style="font-size:.88rem;margin-bottom:1rem;"><strong>Soil:</strong> Warm earth tones — used for text, dark surfaces, and depth.</p>
+        <div class="palette-grid">
+          <div class="swatch-wrap"><div class="swatch" style="background:#120e0a;"></div><div class="swatch-label">950</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#1e1710;"></div><div class="swatch-label">900</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#4a3828;"></div><div class="swatch-label">700</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#7a5c3f;"></div><div class="swatch-label">500</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#c4a882;"></div><div class="swatch-label">300</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#f0e8db;"></div><div class="swatch-label">100</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#f8f4ee;border:1px solid #e8ddd0;"></div><div class="swatch-label">50</div></div>
+        </div>
+
+        <p style="font-size:.88rem;margin-bottom:1rem;margin-top:1.25rem;"><strong>Canopy:</strong> Forest green — primary accent, success states, navigation.</p>
+        <div class="palette-grid">
+          <div class="swatch-wrap"><div class="swatch" style="background:#0f2410;"></div><div class="swatch-label">900</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#1a3d1c;"></div><div class="swatch-label">800</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#2d6b30;"></div><div class="swatch-label">600</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#52ab57;"></div><div class="swatch-label">400</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#a8d9ab;"></div><div class="swatch-label">200</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#d4efd5;"></div><div class="swatch-label">100</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#edf7ee;border:1px solid #d0e8d1;"></div><div class="swatch-label">50</div></div>
+        </div>
+
+        <p style="font-size:.88rem;margin-bottom:1rem;margin-top:1.25rem;"><strong>Terracotta:</strong> Warm CTA accent — buttons, alerts, profit highlights.</p>
+        <div class="palette-grid">
+          <div class="swatch-wrap"><div class="swatch" style="background:#8b3a18;"></div><div class="swatch-label">700</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#c4622d;"></div><div class="swatch-label">500</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#d97c44;"></div><div class="swatch-label">400</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#f0b896;"></div><div class="swatch-label">200</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#fbe8d8;"></div><div class="swatch-label">100</div></div>
+          <div class="swatch-wrap"><div class="swatch" style="background:#fdf4ee;border:1px solid #f0e0d0;"></div><div class="swatch-label">50</div></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-bottom:1.25rem;">Typography Specimen</h3>
+        <div class="type-specimen">
+          <div class="specimen-display">Farm<em class="specimen-italic">wise</em></div>
+          <p style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--soil-400);margin-bottom:.75rem;">Fraunces · Optical size variable · Display</p>
+          <p class="specimen-body">The right crop. The right time. Backed by machine learning trained on 2,200 soil profiles across 22 crop classes.</p>
+          <p style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--soil-400);margin-bottom:.5rem;margin-top:.75rem;">Outfit · 16px / 400 · Body</p>
+          <p style="font-family:'Outfit',sans-serif;font-size:.88rem;color:var(--text-muted);">Soil parameters: N 82 · P 40 · K 42 · pH 6.8 · Temp 26.4°C · Humidity 71% · Rainfall 204 mm</p>
+          <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;">
+            <span class="specimen-mono">font-size: 16px</span>
+            <span class="specimen-mono">line-height: 1.7</span>
+            <span class="specimen-mono">weight: 400/500/600</span>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem;">
+          <h3 style="margin-bottom:1rem;">High Contrast "Field Mode" Preview</h3>
+          <div class="hc-card">
+            <h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;opacity:.5;margin-bottom:.75rem;">AI ADVISORY · FIELD MODE</h3>
+            <div class="hc-row"><span class="hc-key">Nitrogen</span><span class="hc-val">82 kg/ha</span></div>
+            <div class="hc-row"><span class="hc-key">pH</span><span class="hc-val">6.8</span></div>
+            <div class="hc-row"><span class="hc-key">Rainfall</span><span class="hc-val">204 mm</span></div>
+            <div class="hc-row"><span class="hc-key">Temperature</span><span class="hc-val">26.4°C</span></div>
+            <div class="hc-result">🌾 Recommended: RICE · 98.4%</div>
+          </div>
+          <p style="font-size:.78rem;color:var(--text-faint);margin-top:.6rem;">Pure black/white · zero blur · pure white text on black · minimum 7:1 contrast</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Before / After comparison -->
+    <div style="margin-top:3rem;">
+      <h3 style="margin-bottom:1.25rem;">Before &amp; After — Key Decisions</h3>
+      <div style="overflow-x:auto;">
+        <table class="compare-table" style="min-width:640px;">
+          <thead>
+            <tr>
+              <th>Design Element</th>
+              <th>Current (Glassmorphism Dark)</th>
+              <th>Proposed (Terracotta &amp; Canopy)</th>
+              <th>Rationale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Default Theme</td>
+              <td><span class="badge badge--current">Dark Mode</span></td>
+              <td><span class="badge badge--new">Warm Light Mode</span></td>
+              <td>Outdoor use requires light backgrounds to remain readable in sunlight</td>
+            </tr>
+            <tr>
+              <td>Card Style</td>
+              <td><span class="badge badge--current">Frosted Glass / blur(20px)</span></td>
+              <td><span class="badge badge--new">Editorial Surface Cards</span></td>
+              <td>Solid surfaces render consistently across all lighting conditions and GPU capabilities</td>
+            </tr>
+            <tr>
+              <td>Primary Font</td>
+              <td><span class="badge badge--current">System / Tailwind default</span></td>
+              <td><span class="badge badge--new">Fraunces + Outfit</span></td>
+              <td>Organic variable serif conveys authority and warmth; pairs with a clean body sans</td>
+            </tr>
+            <tr>
+              <td>Accent Colour</td>
+              <td><span class="badge badge--current">Emerald #10b981</span></td>
+              <td><span class="badge badge--new">Forest Green #2d6b30</span></td>
+              <td>Deeper, more grounded green reads better on cream surfaces and avoids neon associations</td>
+            </tr>
+            <tr>
+              <td>Form Labels</td>
+              <td><span class="badge badge--current">Plain labels, no tooltips</span></td>
+              <td><span class="badge badge--new">Labels + ⓘ Tooltip Badges</span></td>
+              <td>Agronomic terms need contextual guidance for non-expert users</td>
+            </tr>
+            <tr>
+              <td>Confidence Score</td>
+              <td><span class="badge badge--current">Hidden in ML output</span></td>
+              <td><span class="badge badge--new">Visible progress bar</span></td>
+              <td>Critical trust signal for real farming decisions — must be surfaced</td>
+            </tr>
+            <tr>
+              <td>Field Use</td>
+              <td><span class="badge badge--current">Light/Dark toggle only</span></td>
+              <td><span class="badge badge--new">Dedicated Field Mode</span></td>
+              <td>High contrast, zero blur, max font weight for bright outdoor environments</td>
+            </tr>
+            <tr>
+              <td>Voice Input</td>
+              <td><span class="badge badge--current">Not available</span></td>
+              <td><span class="badge badge--new">Web Speech API</span></td>
+              <td>Hands-free soil data entry for farmers with dirty/wet hands in the field</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 5 · INTERACTIVE MOCKUP ══════════════ -->
+<section class="section section--dark" id="section5">
+  <div class="container--wide">
+    <span class="section-label" style="color:var(--canopy-400);">Section 05</span>
+    <h2 class="section-title" style="color:var(--text-onDark);">Interactive UI Mockup</h2>
+    <p class="section-intro" style="color:rgba(240,232,219,.6);max-width:640px;">A functional preview of the proposed redesign. Hover over form fields to see contextual tooltips. Click "Get Advisory" to simulate the recommendation result flow. Use the tabs to switch between views.</p>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('dashboard',this)">Dashboard</button>
+      <button class="tab-btn" onclick="switchTab('result',this)">Result Card</button>
+      <button class="tab-btn" onclick="switchTab('fieldmode',this)">Field Mode</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="tab-dashboard" class="mockup-frame">
+      <div class="mockup-inner">
+        <!-- Sidebar -->
+        <aside class="mk-sidebar">
+          <div class="mk-logo">
+            <div class="mk-logo-icon">🌿</div>
+            <div>
+              <div class="mk-logo-text">FarmWise</div>
+              <div class="mk-logo-sub">AI Advisory</div>
+            </div>
+          </div>
+          <div class="mk-nav-label">Main</div>
+          <div class="mk-nav-item active"><span class="mk-nav-icon">🏡</span> Dashboard</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">📊</span> Analytics</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">📈</span> Markets</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">🕒</span> History</div>
+          <div class="mk-nav-label">Field Tools</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">⚡</span> Field Mode</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">🌍</span> भाषा / ಭಾಷೆ</div>
+          <div class="mk-profile">
+            <div class="mk-avatar">SK</div>
+            <div>
+              <div class="mk-profile-name">Sakalesh</div>
+              <div class="mk-profile-role">Bengaluru · 3 fields</div>
+            </div>
+          </div>
+        </aside>
+        <!-- Main -->
+        <main class="mk-main">
+          <div class="mk-topbar">
+            <div>
+              <div class="mk-greeting">Good morning, Sakalesh 🌅</div>
+              <div class="mk-greeting-sub">Kharif season · 22 crops profiled · Last advisory: 14 Mar</div>
+            </div>
+            <div class="mk-topbar-right">
+              <div class="mk-badge mk-badge--live">● Live Weather</div>
+              <div class="mk-badge mk-badge--field">☀ Field Mode</div>
+              <div class="mk-weather-pill">🌤 26°C · 71% RH · Bengaluru</div>
+            </div>
+          </div>
+          <div class="mk-content">
+            <!-- Stats -->
+            <div class="mk-stats">
+              <div class="mk-stat-card">
+                <div class="mk-stat-val">4.2 <small>T/ha</small></div>
+                <div class="mk-stat-label">Predicted Yield</div>
+                <div class="mk-stat-trend up">↑ +8% vs avg</div>
+              </div>
+              <div class="mk-stat-card">
+                <div class="mk-stat-val">₹77K</div>
+                <div class="mk-stat-label">Est. Revenue</div>
+                <div class="mk-stat-trend up">↑ Rice price ↗</div>
+              </div>
+              <div class="mk-stat-card">
+                <div class="mk-stat-val">98.4 <small>%</small></div>
+                <div class="mk-stat-label">Model Confidence</div>
+                <div class="mk-stat-trend up">Very High</div>
+              </div>
+              <div class="mk-stat-card">
+                <div class="mk-stat-val">3 <small>fields</small></div>
+                <div class="mk-stat-label">Profiles saved</div>
+                <div class="mk-stat-trend">Last: 2 days ago</div>
+              </div>
+            </div>
+            <!-- Two columns -->
+            <div class="mk-cols">
+              <!-- Form -->
+              <div class="mk-form-card">
+                <div class="mk-card-header">
+                  <div>
+                    <div class="mk-card-title">Soil &amp; Weather Parameters</div>
+                    <div class="mk-card-sub">Enter values or sync live weather</div>
+                  </div>
+                  <button style="background:none;border:none;font-size:14px;cursor:pointer;opacity:.5;padding:.2rem;">🎙</button>
+                </div>
+                <div class="mk-card-body">
+                  <button class="mk-sync-btn">
+                    <span class="mk-sync-icon">🔄</span> Sync Live Weather — Bengaluru
+                    <span style="margin-left:auto;font-size:.65rem;opacity:.6;">Fills temp, humidity, rainfall</span>
+                  </button>
+                  <div class="mk-section-divider">Soil Nutrients</div>
+                  <div class="mk-field-group">
+                    <div class="mk-field-row">
+                      <div>
+                        <div class="mk-field-label">Nitrogen (N) <span class="mk-tooltip-dot" data-tip="Soil nitrogen in kg/ha · Typical: 0–200">i</span></div>
+                        <input class="mk-input" type="number" value="82" placeholder="kg/ha">
+                      </div>
+                      <div>
+                        <div class="mk-field-label">Phosphorus (P) <span class="mk-tooltip-dot" data-tip="Soil phosphorus in kg/ha · Typical: 5–145">i</span></div>
+                        <input class="mk-input" type="number" value="40" placeholder="kg/ha">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mk-field-group">
+                    <div class="mk-field-row">
+                      <div>
+                        <div class="mk-field-label">Potassium (K) <span class="mk-tooltip-dot" data-tip="Soil potassium in kg/ha · Typical: 5–205">i</span></div>
+                        <input class="mk-input" type="number" value="42" placeholder="kg/ha">
+                      </div>
+                      <div>
+                        <div class="mk-field-label">Soil pH <span class="mk-tooltip-dot" data-tip="Acidity 0–14 · Most crops prefer 5.5–7.5">i</span></div>
+                        <input class="mk-input" type="number" value="6.8" step="0.1" placeholder="0–14">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mk-section-divider">Weather Conditions</div>
+                  <div class="mk-field-group">
+                    <div class="mk-field-label">Temperature <span class="mk-tooltip-dot" data-tip="Ambient temp in °C at sowing time">i</span></div>
+                    <div class="mk-range-row">
+                      <input type="range" class="mk-range" min="0" max="50" value="26" oninput="document.getElementById('tmp-val').textContent=this.value+'°C'">
+                      <span class="mk-range-val" id="tmp-val">26°C</span>
+                    </div>
+                  </div>
+                  <div class="mk-field-group">
+                    <div class="mk-field-label">Humidity <span class="mk-tooltip-dot" data-tip="Relative humidity % · Auto-filled via weather">i</span></div>
+                    <div class="mk-range-row">
+                      <input type="range" class="mk-range" style="background:linear-gradient(to right,var(--canopy-500) 71%,var(--border-med) 71%)" min="0" max="100" value="71" oninput="document.getElementById('hum-val').textContent=this.value+'%'">
+                      <span class="mk-range-val" id="hum-val">71%</span>
+                    </div>
+                  </div>
+                  <div class="mk-field-group">
+                    <div class="mk-field-label">Rainfall <span class="mk-tooltip-dot" data-tip="Annual or seasonal rainfall in mm">i</span></div>
+                    <input class="mk-input" type="number" value="204" placeholder="mm">
+                  </div>
+                  <button class="mk-submit-btn" onclick="switchTab('result',document.querySelector('.tab-btn:nth-child(2)'))">
+                    🌾 Get Advisory Report
+                  </button>
+                </div>
+              </div>
+              <!-- Right panel: result + history -->
+              <div style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="mk-form-card">
+                  <div class="mk-card-header">
+                    <div>
+                      <div class="mk-card-title">Last Advisory — 14 Mar</div>
+                      <div class="mk-card-sub">Kharif season · Field 1</div>
+                    </div>
+                    <span style="font-size:.7rem;color:var(--canopy-600);font-weight:600;cursor:pointer;">View full →</span>
+                  </div>
+                  <div class="mk-card-body" style="padding:.75rem 1.25rem;">
+                    <div style="display:flex;align-items:center;gap:.85rem;padding:.5rem 0;border-bottom:1px solid var(--border-soft);">
+                      <span style="font-size:24px;">🌾</span>
+                      <div>
+                        <div style="font-size:1.05rem;font-weight:700;font-family:var(--ff-display);color:var(--soil-800);">Rice</div>
+                        <div style="font-size:.7rem;color:var(--canopy-600);font-weight:600;">98.4% confidence · Yield: 4.2 T/Ha</div>
+                      </div>
+                      <div style="margin-left:auto;text-align:right;">
+                        <div style="font-size:.9rem;font-weight:700;color:var(--terra-500);">₹77K</div>
+                        <div style="font-size:.65rem;color:var(--soil-400);">est. revenue/ha</div>
+                      </div>
+                    </div>
+                    <div style="margin-top:.6rem;font-size:.75rem;color:var(--soil-400);">Irrigation: Medium · NPK deficit: N −18, P −5, K +7</div>
+                  </div>
+                </div>
+                <div class="mk-form-card" style="flex:1;">
+                  <div class="mk-card-header">
+                    <div class="mk-card-title">Recent Histories</div>
+                  </div>
+                  <div class="mk-card-body" style="padding:.6rem .85rem;">
+                    <div class="mk-history">
+                      <div class="mk-history-item">
+                        <span class="mk-history-icon">🌾</span>
+                        <div><div class="mk-history-name">Rice</div><div class="mk-history-date">14 Mar · Field 1</div></div>
+                        <span class="mk-history-badge high">98%</span>
+                      </div>
+                      <div class="mk-history-item">
+                        <span class="mk-history-icon">🌽</span>
+                        <div><div class="mk-history-name">Maize</div><div class="mk-history-date">2 Mar · Field 2</div></div>
+                        <span class="mk-history-badge med">74%</span>
+                      </div>
+                      <div class="mk-history-item">
+                        <span class="mk-history-icon">☕</span>
+                        <div><div class="mk-history-name">Coffee</div><div class="mk-history-date">18 Feb · Field 3</div></div>
+                        <span class="mk-history-badge high">91%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Result Card Tab -->
+    <div id="tab-result" class="mockup-frame" style="display:none;">
+      <div class="mockup-inner" style="height:auto;min-height:500px;">
+        <aside class="mk-sidebar">
+          <div class="mk-logo">
+            <div class="mk-logo-icon">🌿</div>
+            <div><div class="mk-logo-text">FarmWise</div><div class="mk-logo-sub">AI Advisory</div></div>
+          </div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">🏡</span> Dashboard</div>
+          <div class="mk-nav-item active"><span class="mk-nav-icon">🌾</span> Advisory Report</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">📊</span> Analytics</div>
+          <div class="mk-nav-item"><span class="mk-nav-icon">📈</span> Markets</div>
+          <div class="mk-profile">
+            <div class="mk-avatar">SK</div>
+            <div><div class="mk-profile-name">Sakalesh</div><div class="mk-profile-role">Bengaluru · 3 fields</div></div>
+          </div>
+        </aside>
+        <main class="mk-main" style="height:auto;">
+          <div class="mk-topbar">
+            <div>
+              <div class="mk-greeting">Advisory Report — 21 Mar 2026</div>
+              <div class="mk-greeting-sub">Field 1 · N:82 P:40 K:42 pH:6.8 · 26°C · 71% RH · 204mm rain</div>
+            </div>
+            <div class="mk-topbar-right">
+              <div class="mk-badge mk-badge--live">✓ Report Ready</div>
+              <button style="padding:.3rem .7rem;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--surface-0);font-size:.72rem;cursor:pointer;font-family:var(--ff-body);color:var(--text-muted);">📄 PDF</button>
+              <button style="padding:.3rem .7rem;border:1px solid rgba(37,211,102,.3);border-radius:var(--radius-sm);background:#f0fdf4;font-size:.72rem;cursor:pointer;font-family:var(--ff-body);color:#15803d;">📲 WhatsApp</button>
+            </div>
+          </div>
+          <div class="mk-content" style="padding:1.25rem 1.75rem;">
+            <div class="mk-cols">
+              <div class="mk-result-card">
+                <!-- Hero -->
+                <div class="mk-result-hero">
+                  <div class="mk-result-label">Recommended Crop · Kharif Season</div>
+                  <div class="mk-result-crop">🌾 Rice</div>
+                  <div class="mk-result-conf">
+                    <div class="mk-conf-bar"><div class="mk-conf-fill"></div></div>
+                    <span class="mk-conf-text">98.4% confidence — Very High</span>
+                  </div>
+                </div>
+                <!-- Body -->
+                <div class="mk-result-body">
+                  <div class="mk-result-section">
+                    <div class="mk-result-section-title">Fertilizer Plan — NPK</div>
+                    <div class="mk-nutrient-row">
+                      <div class="mk-nutrient mk-nut-n"><div class="mk-nutrient-label">N</div><div class="mk-nutrient-val">82<span class="mk-nutrient-unit"> / 100</span></div><div style="font-size:.6rem;margin-top:2px;">Deficit: −18</div></div>
+                      <div class="mk-nutrient mk-nut-p"><div class="mk-nutrient-label">P</div><div class="mk-nutrient-val">40<span class="mk-nutrient-unit"> / 45</span></div><div style="font-size:.6rem;margin-top:2px;">Deficit: −5</div></div>
+                      <div class="mk-nutrient mk-nut-k"><div class="mk-nutrient-label">K</div><div class="mk-nutrient-val">42<span class="mk-nutrient-unit"> / 35</span></div><div style="font-size:.6rem;margin-top:2px;color:var(--canopy-600);">Surplus: +7</div></div>
+                    </div>
+                    <p style="font-size:.72rem;color:var(--soil-400);margin-top:.4rem;">Apply 18 kg/ha Urea and 5 kg/ha DAP before sowing</p>
+                  </div>
+                  <div class="mk-result-section">
+                    <div class="mk-result-section-title">Field Conditions</div>
+                    <div class="mk-advisory-row"><span class="mk-advisory-key">Irrigation Level</span><span class="mk-advisory-val good">Medium (2–3 irrigations)</span></div>
+                    <div class="mk-advisory-row"><span class="mk-advisory-key">Soil pH</span><span class="mk-advisory-val good">6.8 — Ideal for Rice ✓</span></div>
+                    <div class="mk-advisory-row"><span class="mk-advisory-key">Yield Estimate (RF)</span><span class="mk-advisory-val">4.2 T/Ha  <span style="font-size:.65rem;color:var(--soil-400);">R²=0.9973</span></span></div>
+                    <div class="mk-advisory-row"><span class="mk-advisory-key">Harvest Window</span><span class="mk-advisory-val">June–July 2026</span></div>
+                    <div class="mk-advisory-row"><span class="mk-advisory-key">Price Forecast</span><span class="mk-advisory-val warn">↗ Trending Up (LSTM)</span></div>
+                  </div>
+                  <div class="mk-profit-card">
+                    <div>
+                      <div class="mk-profit-label">Projected Revenue · 1 Hectare</div>
+                      <div style="font-size:.68rem;color:var(--terra-500);margin-top:.2rem;">4.2 T/Ha × ₹18,450/quintal</div>
+                    </div>
+                    <div class="mk-profit-val">₹77,490</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Right side: Why this crop + alt crops -->
+              <div style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="mk-form-card">
+                  <div class="mk-card-header"><div class="mk-card-title">Why Rice?</div></div>
+                  <div class="mk-card-body">
+                    <p style="font-size:.8rem;color:var(--soil-500);line-height:1.6;">Your soil profile matches the top-scoring feature cluster for Oryza sativa. Rainfall (204mm) and humidity (71%) place this field in the ideal paddock range. Potassium is slightly above ideal — consider reducing K-based fertilizer this cycle.</p>
+                    <div style="margin-top:.85rem;">
+                      <div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--soil-400);margin-bottom:.5rem;">Runner-up Crops</div>
+                      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                        <span style="background:var(--surface-1);border:1px solid var(--border-med);border-radius:var(--radius-sm);padding:.25rem .6rem;font-size:.75rem;color:var(--soil-600);">🌾 Wheat · 84%</span>
+                        <span style="background:var(--surface-1);border:1px solid var(--border-med);border-radius:var(--radius-sm);padding:.25rem .6rem;font-size:.75rem;color:var(--soil-600);">🫘 Lentil · 61%</span>
+                        <span style="background:var(--surface-1);border:1px solid var(--border-med);border-radius:var(--radius-sm);padding:.25rem .6rem;font-size:.75rem;color:var(--soil-600);">🌽 Maize · 55%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mk-form-card">
+                  <div class="mk-card-header"><div class="mk-card-title">Yield Trend (last 4 seasons)</div></div>
+                  <div class="mk-card-body" style="padding:.85rem 1.25rem;">
+                    <!-- Simple bar chart -->
+                    <div style="display:flex;align-items:flex-end;gap:8px;height:80px;border-bottom:1px solid var(--border-soft);padding-bottom:.4rem;">
+                      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                        <span style="font-size:.65rem;color:var(--soil-400);">3.6</span>
+                        <div style="width:100%;height:52px;background:var(--canopy-200);border-radius:3px 3px 0 0;"></div>
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                        <span style="font-size:.65rem;color:var(--soil-400);">3.8</span>
+                        <div style="width:100%;height:60px;background:var(--canopy-300);border-radius:3px 3px 0 0;"></div>
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                        <span style="font-size:.65rem;color:var(--soil-400);">3.9</span>
+                        <div style="width:100%;height:64px;background:var(--canopy-400);border-radius:3px 3px 0 0;"></div>
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                        <span style="font-size:.65rem;font-weight:600;color:var(--canopy-700);">4.2</span>
+                        <div style="width:100%;height:72px;background:var(--canopy-600);border-radius:3px 3px 0 0;"></div>
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:.4rem;">
+                      <span style="flex:1;text-align:center;font-size:.62rem;color:var(--soil-400);">Rab 23</span>
+                      <span style="flex:1;text-align:center;font-size:.62rem;color:var(--soil-400);">Kha 23</span>
+                      <span style="flex:1;text-align:center;font-size:.62rem;color:var(--soil-400);">Rab 24</span>
+                      <span style="flex:1;text-align:center;font-size:.62rem;font-weight:600;color:var(--canopy-600);">Kha 26 ↗</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Field Mode Tab -->
+    <div id="tab-fieldmode" class="mockup-frame" style="display:none;">
+      <div style="background:#fff;border-radius:calc(var(--radius-xl) - 2px);overflow:hidden;padding:0;min-height:420px;font-family:var(--ff-body);">
+        <!-- Field mode bar -->
+        <div style="background:#000;padding:.65rem 1.25rem;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:.72rem;font-weight:700;color:#fffc;text-transform:uppercase;letter-spacing:.1em;">⚡ Field Mode Active</span>
+          <div style="display:flex;gap:.6rem;">
+            <span style="font-size:.72rem;color:#fffc;background:rgba(255,255,255,.1);padding:.2rem .6rem;border-radius:4px;">☀ Outdoor</span>
+            <span style="font-size:.72rem;color:#fffc;background:rgba(255,255,255,.1);padding:.2rem .6rem;border-radius:4px;">MAX CONTRAST</span>
+          </div>
+        </div>
+        <div style="padding:1.5rem 1.75rem;max-width:560px;margin:0 auto;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #000;">
+            <div>
+              <div style="font-size:1.25rem;font-weight:800;color:#000;font-family:var(--ff-body);">AI FARM ADVISORY</div>
+              <div style="font-size:.8rem;color:#333;font-weight:500;">Field 1 · 21 March 2026</div>
+            </div>
+            <div style="font-size:.75rem;color:#333;font-weight:600;text-align:right;">26°C · 71% RH<br>Bengaluru</div>
+          </div>
+
+          <!-- Soil form - field mode -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+            <div>
+              <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:.3rem;">Nitrogen N</label>
+              <input type="number" value="82" style="width:100%;padding:.6rem .75rem;border:2px solid #000;border-radius:4px;font-size:1rem;font-weight:700;color:#000;background:#fff;outline:none;font-family:var(--ff-body);">
+            </div>
+            <div>
+              <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:.3rem;">Phosphorus P</label>
+              <input type="number" value="40" style="width:100%;padding:.6rem .75rem;border:2px solid #000;border-radius:4px;font-size:1rem;font-weight:700;color:#000;background:#fff;outline:none;font-family:var(--ff-body);">
+            </div>
+            <div>
+              <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:.3rem;">Potassium K</label>
+              <input type="number" value="42" style="width:100%;padding:.6rem .75rem;border:2px solid #000;border-radius:4px;font-size:1rem;font-weight:700;color:#000;background:#fff;outline:none;font-family:var(--ff-body);">
+            </div>
+            <div>
+              <label style="display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#444;margin-bottom:.3rem;">Soil pH</label>
+              <input type="number" value="6.8" style="width:100%;padding:.6rem .75rem;border:2px solid #000;border-radius:4px;font-size:1rem;font-weight:700;color:#000;background:#fff;outline:none;font-family:var(--ff-body);">
+            </div>
+          </div>
+
+          <button style="width:100%;padding:.85rem;background:#000;color:#fff;border:none;border-radius:6px;font-size:1rem;font-weight:800;font-family:var(--ff-body);cursor:pointer;letter-spacing:.04em;margin-bottom:1.25rem;">
+            GET RECOMMENDATION
+          </button>
+
+          <!-- Result -->
+          <div style="border:3px solid #000;border-radius:8px;padding:1.25rem;background:#fff;">
+            <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#444;margin-bottom:.4rem;">RESULT</div>
+            <div style="font-size:2.2rem;font-weight:900;color:#000;line-height:1;margin-bottom:.4rem;">🌾 RICE</div>
+            <div style="font-size:1rem;font-weight:700;color:#000;margin-bottom:.85rem;">98.4% Confidence</div>
+            <div style="border-top:2px solid #000;padding-top:.85rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
+              <div style="font-size:.82rem;font-weight:700;color:#000;">Yield: 4.2 T/Ha</div>
+              <div style="font-size:.82rem;font-weight:700;color:#000;">Revenue: ₹77K</div>
+              <div style="font-size:.82rem;font-weight:700;color:#000;">Irrigation: Medium</div>
+              <div style="font-size:.82rem;font-weight:700;color:#000;">pH: Ideal ✓</div>
+            </div>
+            <div style="margin-top:.75rem;font-size:.8rem;font-weight:700;color:#000;border-top:2px solid #000;padding-top:.75rem;">Apply 18 kg/ha Urea + 5 kg/ha DAP</div>
+          </div>
+
+          <div style="text-align:center;margin-top:1rem;font-size:.75rem;color:#666;font-weight:500;">
+            Tap anywhere to exit Field Mode
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════ SUMMARY CALLOUT ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,var(--canopy-900),var(--canopy-700));border-radius:var(--radius-xl);padding:3rem;color:#fff;text-align:center;">
+      <span style="display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--canopy-200);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;border-radius:99px;margin-bottom:1.25rem;">Design Proposal Summary</span>
+      <h2 style="color:#fff;font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:1rem;">From Black-Box AI to Trusted Farm Partner</h2>
+      <p style="color:rgba(255,255,255,.65);max-width:600px;margin:0 auto 2rem;font-size:.95rem;">The proposed Terracotta &amp; Canopy redesign preserves what makes the current UI technically impressive — the ML pipeline, the real-time integrations, the animation quality — while fundamentally improving three things: <strong style="color:#fff;">outdoor readability</strong>, <strong style="color:#fff;">agronomic transparency</strong>, and <strong style="color:#fff;">actionable financial context</strong>.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);padding:1rem 1.5rem;min-width:140px;">
+          <div style="font-family:var(--ff-display);font-size:2rem;font-weight:700;color:#fff;">12</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;">Recommendations</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);padding:1rem 1.5rem;min-width:140px;">
+          <div style="font-family:var(--ff-display);font-size:2rem;font-weight:700;color:#fff;">3</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;">Mockup Views</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);padding:1rem 1.5rem;min-width:140px;">
+          <div style="font-family:var(--ff-display);font-size:2rem;font-weight:700;color:#fff;">AAA</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;">Target WCAG Level</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);padding:1rem 1.5rem;min-width:140px;">
+          <div style="font-family:var(--ff-display);font-size:2rem;font-weight:700;color:#fff;">0</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;">Backend Changes Needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="report-footer">
+  <p>AI Farmer Advisory — UI/UX Redesign Report · March 2026</p>
+  <p style="margin-top:.4rem;">Project by <a href="https://github.com/sakalesha/AI-Farmer-Advisory">Sakalesh · GitHub</a> · Redesign proposal by Senior UX Analysis</p>
+  <p style="margin-top:.75rem;font-size:.72rem;opacity:.5;">Fraunces typeface by Undercase Type · Outfit typeface by On Brand · All recommendations are additive to the existing codebase with zero backend migrations required.</p>
+</footer>
+
+<script>
+  function switchTab(tab, btn) {
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+    document.getElementById('tab-' + tab).style.display = '';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+</script>
+</body>
+</html>
