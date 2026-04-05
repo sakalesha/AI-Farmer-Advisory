@@ -1,10 +1,10 @@
 # Build Stage for Frontend
 FROM node:20-slim AS build
 WORKDIR /app
-COPY client/package*.json ./client/
-RUN npm install --prefix client
-COPY client/ ./client/
-RUN npm run build --prefix client
+COPY frontend/package*.json ./frontend/
+RUN npm install --prefix frontend
+COPY frontend/ ./frontend/
+RUN npm run build --prefix frontend
 
 # Final Stage: Unified Node + Python Environment
 FROM node:20-slim
@@ -21,18 +21,21 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 RUN npm install
 
-# Copy Python requirements and install
-COPY requirements.txt ./
-# We use a venv to avoid system package conflicts
+# Copy backend dependencies and install
+COPY backend/package*.json ./backend/
+RUN npm install --prefix backend
+
+# Copy Python requirements and install in a venv
+COPY ml/requirements.txt ./ml/requirements.txt
 RUN python3 -m venv /app/venv
 ENV PATH="/app/venv/bin:$PATH"
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r ml/requirements.txt
 
 # Copy built frontend from Stage 1
-COPY --from=build /app/client/dist ./dist
+COPY --from=build /app/frontend/dist ./backend/dist
 
-# Copy Server and ML directories
-COPY server/ ./server/
+# Copy Backend and ML directories
+COPY backend/ ./backend/
 COPY ml/ ./ml/
 
 # Copy entrypoint script
