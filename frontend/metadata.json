@@ -1,0 +1,5 @@
+{
+  "name": "AgriMind AI",
+  "description": "Premium AI-powered advisory platform for modern farmers. Get crop recommendations, yield predictions, and market insights.",
+  "requestFramePermissions": ["geolocation"]
+}
