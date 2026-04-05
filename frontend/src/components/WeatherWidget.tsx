@@ -14,7 +14,7 @@ export const WeatherWidget: React.FC = () => {
   const [weatherData, setWeatherData] = React.useState<any>(null);
 
   React.useEffect(() => {
-    fetch('/api/weather?lat=30.9000&lon=75.8500')
+    fetch('/api/weather?lat=30.9000&lon=75.8500', { credentials: 'include' })
       .then(res => res.json())
       .then(result => {
         if (result.status === 'success' && result.data) {

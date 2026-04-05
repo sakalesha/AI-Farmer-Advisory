@@ -110,7 +110,7 @@ export default function App() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetch('/api/history')
+      fetch('/api/history', { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
@@ -204,6 +204,7 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           fieldName: 'Main Field',
           N: metrics.n,

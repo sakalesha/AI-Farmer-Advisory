@@ -35,7 +35,7 @@ export const CommunityFeed: React.FC = () => {
   const [newPostContent, setNewPostContent] = React.useState('');
 
   const fetchPosts = () => {
-    fetch('/api/posts')
+    fetch('/api/posts', { credentials: 'include' })
       .then(res => res.json())
       .then(result => {
         if (result.status === 'success') {
@@ -67,6 +67,7 @@ export const CommunityFeed: React.FC = () => {
     fetch('/api/posts', {
        method: 'POST',
        headers: { 'Content-Type': 'application/json' },
+       credentials: 'include',
        body: JSON.stringify({ content: newPostContent })
     })
     .then(res => res.json())

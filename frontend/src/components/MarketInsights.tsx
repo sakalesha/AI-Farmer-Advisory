@@ -52,7 +52,7 @@ export const MarketInsights: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch('/api/market/prices')
+    fetch('/api/market/prices/all')
       .then(res => res.json())
       .then(result => {
         if (result.status === 'success' && result.data?.length > 0) {
